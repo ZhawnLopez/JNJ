@@ -1,75 +1,159 @@
-
-<?php
-    require '../header.php'
-?>
+<?php require '../header.php'; ?>
         <p>Take Orders</p>
     </nav>
 <section class="min-h-screen flex flex-1 overflow-hidden">
+
+    <!-- ================== DISHES ================== -->
     <div class="w-2/3 p-6 overflow-y-auto">
-        <div class="grid gap-4 grid-cols-4 rounded-2xl shadow-lg shadow-gray-300/60 p-4">
-        <?php //foreach dishes as dish?>
-            <form method="POST">
-                <input type="hidden" name="dish_id" value="<?php //dish id ?>">
-                <button type="submit"
-                    class="bg-gray-100 p-4 rounded-lg hover:bg-gray-300 border border-black w-full duration-200">
-                    <p class="font-bold"><?php //dish name?>Dish Name</p>
-                    <p>₱<?php //number_format(dishprice,2); ?>90.00</p>
-                </button>
+        <div class="grid gap-4 grid-cols-4 rounded-2xl shadow-lg p-4 bg-white">
+
+        <?php foreach($dishes as $dish): ?>
+            <form method="POST" class="border rounded-xl p-3 hover:shadow-lg duration-200 bg-gray-50">
+                
+                <input type="hidden" name="dish_id" value="<?= $dish['Dish_id'] ?>">
+
+                <p class="font-bold text-lg"><?= $dish['Dish_name'] ?></p>
+                <p class="text-gray-600 mb-2">₱<?= number_format($dish['Price'],2); ?></p>
+
+                <div class="flex gap-2">
+                    <input type="number" 
+                           name="quantity" 
+                           value="1" 
+                           min="1"
+                           class="w-20 p-1 border rounded">
+
+                    <button type="submit" 
+                            name="add_to_cart"
+                            class="flex-1 bg-blue-600 text-white p-2 rounded hover:bg-blue-500">
+                        Add
+                    </button>
+                </div>
             </form>
-        <?php //endforeach; ?>
+        <?php endforeach; ?>
+
         </div>
     </div>
-    <div class="w-1/3 bg-gray-300 p-6 overflow-y-auto">
-        <h2 class="text-2xl font-bold mb-4">Cart</h2>
-        <?php //calculate total price of every dish ?>
-        <div class="flex justify-between items-center mb-3">
+
+
+    <!-- ================== CART ================== -->
+    <div class="w-1/3 bg-gray-100 p-6 overflow-y-auto">
+        <h2 class="text-2xl font-bold mb-4">🛒 Cart</h2>
+
+        <?php
+        $total = 0;
+
+        if (!empty($_SESSION['cart'])):
+            foreach ($_SESSION['cart'] as $index => $item):
+
+                $dish_id = $item['dish_id'];
+                $quantity = $item['quantity'];
+
+                $result = $conn->query("SELECT Dish_name, Price FROM Dish WHERE Dish_id=$dish_id");
+                $dish = $result->fetch_assoc();
+
+                $item_total = $dish['Price'] * $quantity;
+                $total += $item_total;
+        ?>
+
+        <div class="flex justify-between items-center mb-4 bg-white p-3 rounded shadow">
             <div>
-                <p><?php //echo dish name ?>Food</p>
-                <p class="text-sm opacity-80">
-                    <?php //echo quantity ?>2 x ₱<?php //number_format(dish price),2); ?>80.00
+                <p class="font-semibold"><?= $dish['Dish_name'] ?></p>
+                <p class="text-sm text-gray-500">
+                    <?= $quantity ?> x ₱<?= number_format($dish['Price'],2); ?>
                 </p>
             </div>
 
             <div class="flex items-center gap-3">
-                <p>₱<?php //number_format(total price dish,2); ?>160</p>
+                <p class="font-bold">₱<?= number_format($item_total,2); ?></p>
+
                 <form method="POST">
-                    <input type="hidden" name="remove_id" value="<?php //dish id ?>">
-                    <button class="text-red-800 hover:scale-105 hover:text-red-500">✕</button>
+                    <input type="hidden" name="cart_index" value="<?= $index ?>">
+                    <button type="submit"
+                            name="remove_from_cart"
+                            class="text-red-600 font-bold hover:scale-110">
+                        ✕
+                    </button>
                 </form>
             </div>
         </div>
-        <?php //endforeach; ?>
+
+        <?php endforeach; ?>
+
+        <?php else: ?>
+            <p class="text-gray-500">Cart is empty.</p>
+        <?php endif; ?>
+
+
         <hr class="my-4">
+
         <div class="flex justify-between font-bold text-xl">
             <span>Total:</span>
-            <span>₱<?php //echo number_format($total,2); ?>180</span>
+            <span>₱<?= number_format($total,2); ?></span>
         </div>
-        <!-------------payment-->
-        <form method="POST" class="mt-4 space-y-3">
+
+
+        <!-- ================== PLACE ORDER ================== -->
+        <form method="POST" class="mt-6 space-y-3">
+
+            <select name="customer_type" class="w-full p-2 border rounded" required>
+                <option value="Regular">Regular</option>
+                <option value="PWD">PWD</option>
+                <option value="DineIn">Dine In</option>
+                <option value="Takeout">Takeout</option>
+                <option value="Delivery">Delivery</option>
+            </select>
+
             <div class="flex gap-2">
-                <input name="cashier_id" placeholder="CashierID" class="w-full p-2 rounded-lg border border-black" required>
-                <input name="table_id" placeholder="Table#" class="w-full p-2 rounded-lg border border-black" required>
+                <input name="cashier_id" 
+                       placeholder="Cashier ID" 
+                       class="w-full p-2 border rounded" required>
+
+                <input name="table_id" 
+                       placeholder="Table #" 
+                       class="w-full p-2 border rounded" required>
             </div>
+
+            <button type="submit" 
+                    name="place_order"
+                    class="w-full bg-green-600 text-white p-3 rounded hover:bg-green-500 font-bold">
+                Place Order
+            </button>
+        </form>
+
+
+        <!-- ================== PAYMENT ================== -->
+        <form method="POST" class="mt-6 space-y-3">
+
+            <input type="number" name="order_id" placeholder="Order ID"
+                   class="w-full p-2 border rounded" required>
+
             <div class="flex gap-2">
-                <input type="number" step="0.01" name="amount_paid" placeholder="Amount Paid" class="w-full p-2 rounded-lg border border-black" required>
-                <select name="payment_method" id="paymentMethod"
-                    class="w-full p-2 rounded-lg *:bg-gray-300 border border-black" required>
+                <input type="number" step="0.01"
+                       name="amount_paid"
+                       placeholder="Amount Paid"
+                       class="w-full p-2 border rounded"
+                       required>
+
+                <select name="payment_method"
+                        id="paymentMethod"
+                        class="w-full p-2 border rounded"
+                        required>
                     <option value="Cash">Cash</option>
                     <option value="Gcash">Gcash</option>
                     <option value="Paymaya">Paymaya</option>
                 </select>
             </div>
 
-            <!-- Transaction ID input (hidden by default) -->
-            <input type="text" name="transaction_id" id="transactionIdInput" class="w-full p-2 rounded-lg border border-black hidden" placeholder="Transaction #" >
-
-            <button type="submit" name="checkout" class="w-full bg-green-600 p-3 rounded-lg hover:bg-green-500 font-bold duration-200">
-                Checkout
+            <button type="submit"
+                    name="pay_order"
+                    class="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-500 font-bold">
+                Pay Order
             </button>
         </form>
-        </div>
+
     </div>
 </section>
+
 
 <script>
     const paymentSelect = document.getElementById('paymentMethod');
