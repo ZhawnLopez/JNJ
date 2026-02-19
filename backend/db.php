@@ -14,3 +14,4 @@ if ($conn->connect_error) {
 ?>
 
 // this is for cashierint.php u can just integrate other db.phps from other files if needed
+// ok i just saw the db.php that danikko sent these are essentially the same
