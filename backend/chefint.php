@@ -46,6 +46,9 @@ if (isset($_POST['mark_prepared'])) {
     $message = $update ? "Order #$order_id marked as Prepared!" : "Failed to update order: " . $conn->error;
 }
 
+// gets Orders being prepped/notready, gets Chef name, makes sure that each Order is being prepped by a Chef basically
+// if chef is prepping an order, it shows chef name, if no chef is on an order , that order will still be there in the results just waiting for a chef
+// DAMN I CANNOT EXPLAIN STUFF
 $ingredients = $conn->query("SELECT * FROM Ingredients ORDER BY Ingredients_id ASC");
 $preparingOrders = $conn->query("
     SELECT o.*, c.Chef_name 
