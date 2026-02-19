@@ -1,3 +1,4 @@
+
 <?php
     require '../header.php'
 ?>
@@ -46,22 +47,48 @@
         <!-------------payment-->
         <form method="POST" class="mt-4 space-y-3">
             <div class="flex gap-2">
-                <input type="number" step="0.01" name="amount_paid" placeholder="Amount Paid"
-                    class="w-full p-2 rounded-lg border border-black" required>
-                <select name="payment_method"
+                <input name="cashier_id" placeholder="CashierID" class="w-full p-2 rounded-lg border border-black" required>
+                <input name="table_id" placeholder="Table#" class="w-full p-2 rounded-lg border border-black" required>
+            </div>
+            <div class="flex gap-2">
+                <input type="number" step="0.01" name="amount_paid" placeholder="Amount Paid" class="w-full p-2 rounded-lg border border-black" required>
+                <select name="payment_method" id="paymentMethod"
                     class="w-full p-2 rounded-lg *:bg-gray-300 border border-black" required>
                     <option value="Cash">Cash</option>
                     <option value="Gcash">Gcash</option>
                     <option value="Paymaya">Paymaya</option>
                 </select>
             </div>
-            <button type="submit" name="checkout"
-                class="w-full bg-green-600 p-3 rounded-lg hover:bg-green-500 font-bold duration-200">
+
+            <!-- Transaction ID input (hidden by default) -->
+            <input type="text" name="transaction_id" id="transactionIdInput" class="w-full p-2 rounded-lg border border-black hidden" placeholder="Transaction #" >
+
+            <button type="submit" name="checkout" class="w-full bg-green-600 p-3 rounded-lg hover:bg-green-500 font-bold duration-200">
                 Checkout
             </button>
         </form>
         </div>
     </div>
 </section>
+
+<script>
+    const paymentSelect = document.getElementById('paymentMethod');
+    const transactionInput = document.getElementById('transactionIdInput');
+
+    paymentSelect.addEventListener('change', () => {
+        const method = paymentSelect.value;
+        if (method === 'Gcash' || method === 'Paymaya') {
+            transactionInput.classList.remove('hidden');
+            transactionInput.setAttribute('required', 'required');
+        } else {
+            transactionInput.classList.add('hidden');
+            transactionInput.removeAttribute('required');
+            transactionInput.value = ''; // clear input
+        }
+    });
+
+// trigger on page load in case default is Gcash/Paymaya
+    paymentSelect.dispatchEvent(new Event('change'));
+</script>
 
 <?php require '../footer.php' ?>
