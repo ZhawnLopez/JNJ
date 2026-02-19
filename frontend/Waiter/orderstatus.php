@@ -28,7 +28,7 @@
             </div>
         </div>
     </div>
-    <div class="flex-1 m-8 mr-0 bg-gray-300 rounded-lg p-4 shadow-lg overflow-y-auto">
+    <div class="flex-1 m-8 bg-gray-300 rounded-lg p-4 shadow-lg overflow-y-auto">
         <div class="flex flex-col">
             <h1 class="font-bold text-center text-2xl pb-4 border-b">Tables</h1>
         <?php //foreach table number?>
