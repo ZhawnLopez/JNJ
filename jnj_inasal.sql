@@ -102,11 +102,14 @@ CREATE TABLE Payment (
     Payment_status VARCHAR(50) NOT NULL CHECK (Payment_status IN ('Paid','Not Paid')), 
     Transaction_Num VARCHAR(100), 
     Cashier_id INT NOT NULL,
-    Customer_id INT NOT NULL,     
+    Customer_id INT NOT NULL,
+    Order_id INT NOT NULL,
     CONSTRAINT fk_payment_cashier  
         FOREIGN KEY (Cashier_id) REFERENCES Cashier(Cashier_id), 
     CONSTRAINT fk_payment_customer  
-        FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id) 
+        FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id),
+    CONSTRAINT fk_payment_order 
+        FOREIGN KEY (Order_id) REFERENCES Orders(Order_id)
 ); 
 
 CREATE TABLE Ingredients ( 
