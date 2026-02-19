@@ -1,1 +1,0 @@
-//display tables and its statuses, waiter can update their status

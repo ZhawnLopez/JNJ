@@ -30,18 +30,6 @@ CREATE TABLE Waiter (
     Date_hired DATE
 );
 
-CREATE TABLE Chef ( 
-    Chef_id INT PRIMARY KEY, 
-    Chef_name VARCHAR(45) NOT NULL, 
-    Chef_email VARCHAR(45) NOT NULL UNIQUE, 
-    Chef_contact_num VARCHAR(20) UNIQUE, 
-    Speciality VARCHAR(100), 
-    Chef_shift VARCHAR(100), 
-    Years_of_experience INT CHECK (Years_of_experience >= 0), 
-    Order_id INT, 
-    CONSTRAINT fk_chef_order FOREIGN KEY (Order_id) REFERENCES Orders(Order_id) 
-); 
-
 CREATE TABLE Manager (
     Manager_id INT PRIMARY KEY, 
     Manager_Name VARCHAR(45) NOT NULL,
@@ -67,6 +55,15 @@ CREATE TABLE Cart (
     CONSTRAINT fk_Dish FOREIGN KEY (Dish_id) REFERENCES Dish(Dish_id) 
 ); 
 
+CREATE TABLE Tables ( 
+    Table_id INT PRIMARY KEY,
+    Table_number VARCHAR(10) UNIQUE, 
+    Table_capacity INT, 
+    Table_status VARCHAR(45) NOT NULL CHECK(Table_status IN ('Dirty', 'Available', 'Occupied')),
+    Waiter_id INT,
+    CONSTRAINT fk_table_waiter FOREIGN KEY (Waiter_id) REFERENCES Waiter(Waiter_id) 
+); 
+
 CREATE TABLE Orders ( 
     Order_id INT PRIMARY KEY AUTO_INCREMENT, 
     Order_items VARCHAR(200) NOT NULL, 
@@ -84,6 +81,18 @@ CREATE TABLE Orders (
         FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id) 
 ); 
 
+CREATE TABLE Chef ( 
+    Chef_id INT PRIMARY KEY, 
+    Chef_name VARCHAR(45) NOT NULL, 
+    Chef_email VARCHAR(45) NOT NULL UNIQUE, 
+    Chef_contact_num VARCHAR(20) UNIQUE, 
+    Speciality VARCHAR(100), 
+    Chef_shift VARCHAR(100), 
+    Years_of_experience INT CHECK (Years_of_experience >= 0), 
+    Order_id INT, 
+    CONSTRAINT fk_chef_order FOREIGN KEY (Order_id) REFERENCES Orders(Order_id) 
+); 
+
 CREATE TABLE Payment ( 
     Payment_id INT PRIMARY KEY AUTO_INCREMENT, 
     Payment_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
@@ -97,15 +106,6 @@ CREATE TABLE Payment (
         FOREIGN KEY (Cashier_id) REFERENCES Cashier(Cashier_id), 
     CONSTRAINT fk_payment_customer  
         FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id) 
-); 
-
-CREATE TABLE Tables ( 
-    Table_id INT PRIMARY KEY,
-    Table_number VARCHAR(10) UNIQUE, 
-    Table_capacity INT, 
-    Table_status VARCHAR(45) NOT NULL CHECK(Table_status IN ('Dirty', 'Available', 'Occupied')),
-    Waiter_id INT,
-    CONSTRAINT fk_table_waiter FOREIGN KEY (Waiter_id) REFERENCES Waiter(Waiter_id) 
 ); 
 
 CREATE TABLE Ingredients ( 
