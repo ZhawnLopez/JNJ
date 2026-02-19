@@ -17,9 +17,26 @@ if (isset($_POST['add_to_cart'])) {
     $quantity = (int)$_POST['quantity'];
 
     if ($quantity > 0) {
-        $_SESSION['cart'][] = ['dish_id' => $dish_id, 'quantity' => $quantity];
-        $message = "Dish added to cart!";
+        $found = false;
+        foreach ($_SESSION['cart'] as &$item) {
+            if ($item['dish_id'] === $dish_id) {
+                $item['quantity'] += $quantity;
+                $found = true;
+                break;
+            }
+        }
+        unset($item); 
+        if (!$found) {
+            $_SESSION['cart'][] = [
+                'dish_id' => $dish_id,
+                'quantity' => $quantity
+            ];
+        }
+        $_SESSION['message'] = "Cart updated!";
     }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // remove from cart
