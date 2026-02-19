@@ -1,0 +1,1 @@
+//login of manager, all sites under manager must kick out if not logged in

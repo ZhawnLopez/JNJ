@@ -47,7 +47,6 @@ CREATE TABLE Manager (
     Manager_Name VARCHAR(45) NOT NULL,
     Manager_Email VARCHAR(45) NOT NULL UNIQUE,
     Manager_contact_num VARCHAR(20) NOT NULL UNIQUE, 
-    Manager_Position VARCHAR(45) NOT NULL CHECK (Manager_Position IN ('General Manager', 'Assistant Manager', 'Floor Manager')),
     Date_hired DATE NOT NULL
 );
 
