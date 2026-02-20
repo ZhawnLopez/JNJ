@@ -11,16 +11,6 @@ CREATE TABLE Cashier (
     Total_transactions INT
 ); 
 
-CREATE TABLE Customer ( 
-    Customer_id INT PRIMARY KEY AUTO_INCREMENT,
-    Customer_name VARCHAR(45),
-    Customer_contact_num VARCHAR(20) UNIQUE,
-    Customer_email VARCHAR(100) UNIQUE,
-    Feedback_rating DECIMAL(10,2),
-    Last_visited DATETIME,
-    Customer_type VARCHAR(100) CHECK (Customer_type IN ('PWD', 'Regular', 'Delivery', 'Takeout', 'DineIn'))
-); 
-
 CREATE TABLE Waiter ( 
     Waiter_id INT PRIMARY KEY,
     Waiter_name VARCHAR(45) NOT NULL,
@@ -73,13 +63,10 @@ CREATE TABLE Orders (
     Order_status VARCHAR(50) NOT NULL DEFAULT 'Preparing' CHECK (Order_status IN ('Preparing','Prepared')),
     Table_id INT NOT NULL,
     Cashier_id INT NOT NULL, 
-    Customer_id INT NOT NULL,
     CONSTRAINT fk_order_table
         FOREIGN KEY (Table_id) REFERENCES Tables(Table_id), 
     CONSTRAINT fk_order_cashier  
         FOREIGN KEY (Cashier_id) REFERENCES Cashier(Cashier_id), 
-    CONSTRAINT fk_order_customer  
-        FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id) 
 ); 
 
 CREATE TABLE Chef ( 
@@ -100,14 +87,11 @@ CREATE TABLE Payment (
     Amount_paid DECIMAL(10,2) NOT NULL CHECK (Amount_paid > 0), 
     Payment_method VARCHAR(50) NOT NULL CHECK (Payment_method IN ('Gcash','Paymaya','Cash')), 
     Payment_status VARCHAR(50) NOT NULL CHECK (Payment_status IN ('Paid','Not Paid')), 
-    Transaction_Num VARCHAR(100), 
+    Transaction_Num VARCHAR(100),
     Cashier_id INT NOT NULL,
-    Customer_id INT NOT NULL,
     Order_id INT NOT NULL,
     CONSTRAINT fk_payment_cashier  
         FOREIGN KEY (Cashier_id) REFERENCES Cashier(Cashier_id), 
-    CONSTRAINT fk_payment_customer  
-        FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id),
     CONSTRAINT fk_payment_order 
         FOREIGN KEY (Order_id) REFERENCES Orders(Order_id)
 ); 
