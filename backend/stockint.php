@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt = $conn->prepare("INSERT INTO Ingredients 
             (Ingredients_name, Category, Quantity_available, Unit_of_measure, Date_received, Expiry_date, Restock_status, Chef_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ississsi', $name, $category, $quantity, $unit, $date_received, $expiry, $restock_status, $chef_id);
+        $stmt->bind_param('sssisssi', $name, $category, $quantity, $unit, $date_received, $expiry, $restock_status, $chef_id);
         $stmt->execute();
         $stmt->close();
         header("Location: " . $_SERVER['PHP_SELF']); exit();

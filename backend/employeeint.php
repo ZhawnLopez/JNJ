@@ -21,11 +21,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt->execute();
             $stmt->close();
         } elseif ($type === 'Waiter') {
+            $assigned_section = $_POST['assigned_section']; $date_hired = $_POST['date_hired_waiter'] ?? null;
             $stmt = $conn->prepare("INSERT INTO Waiter (Waiter_id,Waiter_name,Waiter_contact_num,Waiter_shift,Assigned_section,Date_hired) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->bind_param('isssss', $manual_id, $name, $contact, $shift, $assigned_section, $date_hired);
             $stmt->execute();
             $stmt->close();
         } elseif ($type === 'Chef') {
+            $speciality = $_POST['speciality'] ?? '';
+            $years_experience = (int)($_POST['years_experience'] ?? 0);
+            $date_hired = $_POST['date_hired_chef'] ?? null;
             $stmt = $conn->prepare("INSERT INTO Chef (Chef_id,Chef_name,Chef_email,Chef_contact_num,Speciality,Chef_shift,Years_of_experience) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param('isssssi', $manual_id, $name, $email, $contact, $speciality, $shift, $years_experience);
             $stmt->execute();

@@ -126,8 +126,7 @@ require '../../backend/employeeint.php';
                                 data-contact="<?= htmlspecialchars($ch['Chef_contact_num']) ?>"
                                 data-shift="<?= htmlspecialchars($ch['Chef_shift']) ?>"
                                 data-speciality="<?= htmlspecialchars($ch['Speciality']) ?>"
-                                data-years="<?= $ch['Years_of_experience'] ?>"
-                                data-date_hired="<?= $ch['Date_hired'] ?>">
+                                data-years="<?= $ch['Years_of_experience'] ?>">
                             Edit
                         </button>
                         <form method="POST" style="display:inline" onsubmit="return confirm('Delete this employee?');">
@@ -183,7 +182,6 @@ require '../../backend/employeeint.php';
             <div id="chefFields" class="hidden space-y-2">
                 <input type="text" name="speciality" placeholder="Speciality" class="w-full p-2 border rounded">
                 <input type="number" name="years_experience" placeholder="Years of Experience" class="w-full p-2 border rounded" min="0">
-                <input type="date" name="date_hired_chef" class="w-full p-2 border rounded">
             </div>
 
             <div class="flex justify-end gap-2 mt-4">
@@ -274,7 +272,6 @@ document.querySelectorAll('.editBtn').forEach(btn => {
             chefFields.classList.remove('hidden');
             document.querySelector('[name="speciality"]').value = btn.dataset.speciality || '';
             document.querySelector('[name="years_experience"]').value = btn.dataset.years || '';
-            document.querySelector('[name="date_hired_chef"]').value = btn.dataset.date_hired || '';
         }
     });
 });
