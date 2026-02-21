@@ -2,7 +2,8 @@
 
 require '../../frontend/header.php';
 include 'db.php';
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 $message = "";
 
 // --------------- Update Table Status ---------------
@@ -68,7 +69,7 @@ $preparedOrders = $conn->query("SELECT o.Order_id, o.Table_id, o.Total_amount, o
                                 ORDER BY o.Order_date ASC");
 
 if (isset($_SESSION['message'])) {
-    echo "<div class='p-3 text-green-800 text-center font-bold mb-4'>
+    echo "<div class='p-3 text-green-800 bg-white rounded-lg text-center font-bold mt-4'>
             {$_SESSION['message']}
           </div>";
     unset($_SESSION['message']);

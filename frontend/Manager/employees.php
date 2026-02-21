@@ -152,6 +152,7 @@ require '../../backend/employeeint.php';
         <form id="employeeForm" class="space-y-3" method="POST">
             <input type="hidden" name="action" value="register" id="formAction">
             <input type="hidden" name="employee_id" value="" id="employeeId">
+            <input type="hidden" name="employee_type" id="hiddenEmployeeType">
             <div class="mb-4">
                 <label class="font-semibold">Employee Type:</label>
                 <select name="employee_type" id="employeeType" class="w-full p-2 rounded border border-gray-400" required>
@@ -279,6 +280,7 @@ document.querySelectorAll('.editBtn').forEach(btn => {
         employeeTypeSelect.value = btn.dataset.type;
         employeeTypeSelect.disabled = true; // cannot change type
 
+        document.getElementById('hiddenEmployeeType').value = btn.dataset.type;
         hideAllFields();
         commonFields.classList.remove('hidden');
 
@@ -300,7 +302,6 @@ document.querySelectorAll('.editBtn').forEach(btn => {
         }
     });
 });
-
 </script>
 
 <?php require '../footer.php'; ?>

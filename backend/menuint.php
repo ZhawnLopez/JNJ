@@ -1,7 +1,8 @@
 <?php
 require '../../frontend/header.php';
 include 'db.php';
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 // ---------------------- Handle Dish Actions ----------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];

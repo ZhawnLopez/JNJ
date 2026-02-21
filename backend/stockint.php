@@ -1,6 +1,9 @@
 <?php
 require '../../frontend/header.php';
 include 'db.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+$message = "";
 
 // ---------------------- Handle Ingredient Add/Edit ----------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -19,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt = $conn->prepare("INSERT INTO Ingredients 
             (Ingredients_name, Category, Quantity_available, Unit_of_measure, Date_received, Expiry_date, Restock_status, Chef_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssisssi', $name, $category, $quantity, $unit, $date_received, $expiry, $restock_status, $chef_id);
+        $stmt->bind_param('sssssssi', $name, $category, $quantity, $unit, $date_received, $expiry, $restock_status, $chef_id);
         $stmt->execute();
         $stmt->close();
         header("Location: " . $_SERVER['PHP_SELF']); exit();
@@ -37,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt = $conn->prepare("UPDATE Ingredients SET 
            Ingredients_name=?, Category=?, Quantity_available=?, Unit_of_measure=?, Date_received=?, Expiry_date=?, Restock_status=?, Chef_id=? 
             WHERE Ingredients_id=?");
-        $stmt->bind_param('ississssii', $name, $category, $quantity, $unit, $date_received, $expiry, $restock_status, $chef_id, $id);
+        $stmt->bind_param('ssissssii', $name, $category, $quantity, $unit, $date_received, $expiry, $restock_status, $chef_id, $id);
         $stmt->execute();
         $stmt->close();
         header("Location: " . $_SERVER['PHP_SELF']); exit();
@@ -50,3 +53,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // Fetch ingredients for table
 $ingredients = $conn->query("SELECT i.*, c.Chef_name FROM Ingredients i JOIN Chef c ON i.Chef_id = c.Chef_id ORDER BY Ingredients_id ASC");
+$chefs = $conn->query("SELECT Chef_id, Chef_name FROM Chef ORDER BY Chef_id ASC");

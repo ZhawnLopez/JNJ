@@ -24,7 +24,6 @@ require '../../backend/stockint.php';
                     <th>Name</th>
                     <th>Category</th>
                     <th>Quantity</th>
-                    <th>Unit</th>
                     <th>Date Received</th>
                     <th>Expiry Date</th>
                     <th>Restock Status</th>
@@ -38,11 +37,14 @@ require '../../backend/stockint.php';
                     <td><?= $ing['Ingredients_id'] ?></td>
                     <td><?= htmlspecialchars($ing['Ingredients_name']) ?></td>
                     <td><?= htmlspecialchars($ing['Category']) ?></td>
-                    <td><?= $ing['Quantity_available'] ?></td>
-                    <td><?= htmlspecialchars($ing['Unit_of_measure']) ?></td>
+                    <td><?= $ing['Quantity_available'] ?><?= htmlspecialchars($ing['Unit_of_measure']) ?></td>
                     <td><?= $ing['Date_received'] ?></td>
                     <td><?= $ing['Expiry_date'] ?></td>
-                    <td><?= htmlspecialchars($ing['Restock_status']) ?></td>
+                    <?php if($ing['Restock_status'] == 'Need Restock'): ?>
+                        <td class="text-red-700 bg-red-200 rounded font-semibold"><?= htmlspecialchars($ing['Restock_status']) ?></td>
+                    <?php else: ?>
+                        <td><?= htmlspecialchars($ing['Restock_status']) ?></td>
+                    <?php endif; ?>
                     <td><?= htmlspecialchars($ing['Chef_name']) ?></td>
                     <td>
                         <button class="editIngredientBtn bg-gray-200 px-2 py-1 rounded" 
@@ -77,18 +79,56 @@ require '../../backend/stockint.php';
         <form id="ingredientForm" method="POST" class="space-y-3">
             <input type="hidden" name="action" value="add" id="ingredientFormAction">
             <input type="hidden" name="ingredient_id" id="ingredientOriginalId">
-            <input type="text" name="ingredient_name" placeholder="Ingredient Name" class="w-full p-2 border rounded" required>
-            <input type="text" name="category" placeholder="Category" class="w-full p-2 border rounded" required>
-            <input type="number" name="quantity" placeholder="Quantity Available" class="w-full p-2 border rounded" min="0" required>
-            <input type="text" name="unit" placeholder="Unit of Measure" class="w-full p-2 border rounded">
-            <input type="date" name="date_received" class="w-full p-2 border rounded">
-            <input type="date" name="expiry_date" class="w-full p-2 border rounded" required>
-            <select name="restock_status" class="w-full p-2 border rounded">
-                <option value="Good">Good</option>
-                <option value="Need Restock">Need Restock</option>
-            </select>
-            <input type="number" name="chef_id" placeholder="Chef ID" class="w-full p-2 border rounded" required>
+            <div class="flex gap-2 items-center *:w-full">
+                <div>
+                    <label for="ingredient_name">Ingredient Name</label>
+                    <input type="text" id="ingredient_name" name="ingredient_name" placeholder="Salt" class="w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label for="category">Category</label>
+                    <input type="text" id="category" name="category" placeholder="Spices" class="w-full p-2 border rounded" required>
+                </div>
+            </div>
 
+            <div class="flex gap-2 items-center *:w-full">
+                <div>
+                    <label for="quantity">Quantity Available</label>
+                    <input type="number" id="quantity" name="quantity" placeholder="50" class="w-full p-2 border rounded" min="0" required></div>
+                <div>
+                    <label for="unit">Unit of Measure</label>
+                    <input type="text" id="unit" name="unit" placeholder="kg" class="w-full p-2 border rounded">
+                </div>
+            </div>
+
+            <div class="flex gap-2 items-center *:w-full">
+                <div>
+                    <label for="date_received">Date Received</label>
+                    <input type="date" id="date_received" name="date_received" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label for="expiry_date">Expiry Date</label>
+                    <input type="date" id="expiry_date" name="expiry_date" class="w-full p-2 border rounded" required>
+                </div>
+            </div>
+
+            <div class="flex gap-2 items-center *:w-full">
+                <div>
+                    <label for="restock_status">Restock Status</label>
+                    <select id="restock_status" name="restock_status" class="w-full p-2 border rounded">
+                        <option value="Good">Good</option>
+                        <option value="Need Restock">Need Restock</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="chef_id">Assigned Chef</label>
+                    <select id="chef_id" name="chef_id" class="w-full p-2 border rounded" required>
+                        <option value="">Select Chef</option>
+                        <?php while($ch = $chefs->fetch_assoc()): ?>
+                            <option value="<?= htmlspecialchars($ch['Chef_id']) ?>"><?= htmlspecialchars($ch['Chef_name']) ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+            </div>
             <div class="flex justify-end gap-2 mt-4">
                 <button type="button" id="cancelIngredientBtn" class="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500">Cancel</button>
                 <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-500">Save</button>
