@@ -1,5 +1,5 @@
 <?php
-session_start();
+require '../../frontend/header.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -32,9 +32,7 @@ if (isset($_POST['add_to_cart'])) {
                 'quantity' => $quantity
             ];
         }
-        $_SESSION['message'] = "Cart updated!";
     }
-
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
@@ -44,253 +42,162 @@ if (isset($_POST['remove_from_cart'])) {
     $index = (int)$_POST['cart_index'];
 
     if (isset($_SESSION['cart'][$index])) {
+        // Decrease 
+        $_SESSION['cart'][$index]['quantity']--;
+        // If quantity is now 0 or less, remove item
+        if ($_SESSION['cart'][$index]['quantity'] <= 0) {
+            unset($_SESSION['cart'][$index]);
+            $_SESSION['cart'] = array_values($_SESSION['cart']);
+            $message = "Item removed from cart!";
+        }
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+}
+if(isset($_POST['delete_from_cart'])){
+    $index = (int)$_POST['cart_index'];
+
+    if (isset($_SESSION['cart'][$index])) {
         unset($_SESSION['cart'][$index]);
         $_SESSION['cart'] = array_values($_SESSION['cart']);
         $message = "Item removed from cart!";
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 }
-
 // place orders
-if (isset($_POST['place_order'])) {
-
-    $customer_id = (int)$_POST['customer_id'];
+if (isset($_POST['pay_order'])) {
     $cashier_id = (int)$_POST['cashier_id'];
     $table_id = (int)$_POST['table_id'];
+    $payment_method = $_POST['payment_method'];
+    $amount_paid = (float)$_POST['amount_paid'];
+    $transaction_num = $_POST['transaction_num'] ?? '';
 
     if (!empty($_SESSION['cart'])) {
-
         $total_amount = 0;
+        $order_items_text = []; // store dishes as plain text
 
+        // calculate total and build plain text
         foreach ($_SESSION['cart'] as $item) {
             $dish_id = (int)$item['dish_id'];
             $quantity = (int)$item['quantity'];
 
-            $result = $conn->query("SELECT Price FROM Dish WHERE Dish_id=$dish_id");
-
-            if ($result && $dish = $result->fetch_assoc()) {
+            $res = $conn->query("SELECT Dish_name, Price FROM Dish WHERE Dish_id=$dish_id");
+            if ($dish = $res->fetch_assoc()) {
                 $total_amount += $dish['Price'] * $quantity;
-            } else {
-                $message = "Dish ID $dish_id not found.";
-                break;
+                $order_items_text[] = $dish['Dish_name'] . " x" . $quantity;
             }
         }
 
-        if (empty($message)) {
+        // amount paid check
+        if ($amount_paid < $total_amount) {
+            $message = "Insufficient amount! Total is ₱" . number_format($total_amount, 2) .", amount paid: ₱" . number_format($amount_paid, 2);
+        } else {
+            // convert array to string
+            $order_items_text = implode(", ", $order_items_text);
 
-            $order_items_json = json_encode($_SESSION['cart']);
+            // insert order
+            $insertOrder = $conn->query("INSERT INTO Orders (Order_items, Total_amount, Table_id, Cashier_id, Order_status) VALUES ('$order_items_text', $total_amount, $table_id, $cashier_id, 'Preparing')");
 
-            $insert = $conn->query("
-                INSERT INTO Orders (Order_items, Total_amount, Table_id, Cashier_id, Customer_id) 
-                VALUES ('$order_items_json', $total_amount, $table_id, $cashier_id, $customer_id)
-            ");
+            if ($insertOrder) {
+                $new_order_id = $conn->insert_id;
 
-            if ($insert) {
-                $order_id = $conn->insert_id;
-                $_SESSION['cart'] = [];
-                $message = "Order placed! Order ID: $order_id | Total: ₱$total_amount";
+                // insert payment
+                $pay = $conn->query("INSERT INTO Payment (Order_id, Amount_paid, Payment_method, Payment_status, Transaction_Num, Cashier_id) VALUES ($new_order_id, $amount_paid, '$payment_method', 'Paid', '$transaction_num', $cashier_id)");
+
+                if ($pay) {
+                    $_SESSION['cart'] = [];
+                    $_SESSION['message'] = "Order #$new_order_id paid successfully!";
+                    $_SESSION['payment_id'] = $conn->insert_id;
+                    $_SESSION['order_id'] = $new_order_id;
+                    header('Location: ../../frontend/Cashier/payment.php');
+                    exit();
+                } else {
+                    $message = "Payment Error: " . $conn->error;
+                }
             } else {
-                $message = "Order error: " . $conn->error;
+                $message = "Order Error: " . $conn->error;
             }
         }
-
     } else {
-        $message = "Cart is empty!";
+        $message = "Your cart is empty!";
     }
 }
 
-// payment processings
+// payment
 if (isset($_POST['pay_order'])) {
-
-    $order_id = (int)$_POST['order_id'];
-    $customer_id = (int)$_POST['customer_id'];
     $cashier_id = (int)$_POST['cashier_id'];
+    $table_id = (int)$_POST['table_id'];
     $payment_method = $_POST['payment_method'];
     $amount_paid = (float)$_POST['amount_paid'];
+    $transaction_num = $_POST['transaction_num'] ?? '';
+    $customer_type = $_POST['customer_type'] ?? '';
 
-    $pay = $conn->query("
-        INSERT INTO Payment 
-        (Order_id, Amount_paid, Payment_method, Payment_status, Cashier_id, Customer_id)
-        VALUES 
-        ($order_id, $amount_paid, '$payment_method', 'Paid', $cashier_id, $customer_id)
-    ");
+    $discount_percentage = 0;
+    if ($customer_type === 'PWD') {
+        $discount_percentage = 20;  // Apply a 20% discount for PWD customers
+    }
+    if (!empty($_SESSION['cart'])) {
+        $total_amount = 0;
+        $order_details = []; // store the dishes and quantity for order
 
-    if ($pay) {
-        $conn->query("UPDATE Orders SET Order_status='Prepared' WHERE Order_id=$order_id");
-        $message = "Payment successful!";
+        // calculate total and build order details
+        foreach ($_SESSION['cart'] as $item) {
+            $dish_id = (int)$item['dish_id'];
+            $quantity = (int)$item['quantity'];
+
+            $res = $conn->query("SELECT Dish_name, Price FROM Dish WHERE Dish_id=$dish_id");
+            if ($row = $res->fetch_assoc()) {
+                $item_price = (float)$row['Price'];
+                $total_amount += $item_price * $quantity;
+
+                $order_details[] = [
+                    'dish_id'   => $dish_id,
+                    'dish_name' => $row['Dish_name'],
+                    'quantity'  => $quantity,
+                    'price'     => $item_price
+                ];
+            }
+        }
+
+        if ($discount_percentage > 0) {
+            $total_amount -= $total_amount * ($discount_percentage / 100);
+        }
+        //amount paid must be more than total amount
+        if ($amount_paid < $total_amount) {
+            $message = "Insufficient amount! Total is ₱" . number_format($total_amount, 2) . ", amount paid: ₱" . number_format($amount_paid, 2);
+        } else {
+            // insert order
+            $order_items_json = json_encode($order_details);
+            $insertOrder = $conn->query("INSERT INTO Orders (Order_items, Total_amount, Customer_type, Table_id, Cashier_id, Order_status) VALUES ('$order_items_json', $total_amount, '$customer_type', $table_id, $cashier_id, 'Preparing')");
+
+            if ($insertOrder) {
+                $new_order_id = $conn->insert_id;
+
+                // insert payment
+                $pay = $conn->query("INSERT INTO Payment (Order_id, Amount_paid, Payment_method, Payment_status, Transaction_Num, Cashier_id) VALUES ($new_order_id, $amount_paid, '$payment_method', 'Paid', '$transaction_num', $cashier_id)");
+
+                if ($pay) {
+                    $_SESSION['cart'] = [];
+                    $_SESSION['message'] = "Order #$new_order_id paid successfully!";
+                    $_SESSION['payment_id'] = $conn->insert_id;
+                    $_SESSION['order_id'] = $new_order_id;
+                    header('Location: ../../frontend/Cashier/payment.php');
+                    exit();
+                } else {
+                    $message = "Payment Error: " . $conn->error;
+                }
+            } else {
+                $message = "Order Error: " . $conn->error;
+            }
+        }
+
     } else {
-        $message = "Payment error: " . $conn->error;
+        $message = "Your cart is empty!";
     }
 }
 $dishes = $conn->query("SELECT Dish_id, Dish_name, Price FROM Dish WHERE Availability_status='Available'");
-$customers = $conn->query("SELECT Customer_id, Customer_name, Customer_type FROM Customer");
-
-// most recent customer
-// this is to make it auto select the most recent for Payment and Order
-$latestCustomerResult = $conn->query("SELECT Customer_id FROM Customer ORDER BY Customer_id DESC LIMIT 1");
-$latestCustomer = $latestCustomerResult ? $latestCustomerResult->fetch_assoc() : null;
-$latestCustomerId = $latestCustomer ? $latestCustomer['Customer_id'] : null;
-
-// unpaid orders for payment
-$unpaidOrders = $conn->query("
-    SELECT Order_id, Total_amount 
-    FROM Orders 
-    WHERE Order_status != 'Prepared'
-");
+$cashiers = $conn->query("SELECT Cashier_id FROM Cashier");
+$availtables = $conn->query("SELECT Table_id FROM Tables");
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Cashier Interface</title>
-    <style>
-        table { border-collapse: collapse; width: 60%; margin-bottom: 20px; }
-        th, td { border: 1px solid #333; padding: 8px; }
-    </style>
-</head>
-<body>
 
-<h1>Cashier Interface</h1>
-
-<?php if (!empty($message)) echo "<p><strong>$message</strong></p>"; ?>
-
-<!-- available dishes -->
-<h2>Available Dishes</h2>
-<table>
-<tr><th>Name</th><th>Price</th><th>Action</th></tr>
-<?php while($row = $dishes->fetch_assoc()): ?>
-<tr>
-    <td><?= $row['Dish_name'] ?></td>
-    <td>₱<?= number_format($row['Price'],2) ?></td>
-    <td>
-        <form method="POST">
-            <input type="hidden" name="dish_id" value="<?= $row['Dish_id'] ?>">
-            <input type="number" name="quantity" value="1" min="1">
-            <button type="submit" name="add_to_cart">Add</button>
-        </form>
-    </td>
-</tr>
-<?php endwhile; ?>
-</table>
-
-<!-- cart -->
-<h2>Cart</h2>
-
-<?php if (!empty($_SESSION['cart'])): ?>
-<table>
-<tr><th>Dish</th><th>Qty</th><th>Action</th></tr>
-<?php foreach ($_SESSION['cart'] as $index => $item): 
-    $dish_id = (int)$item['dish_id'];
-    $result = $conn->query("SELECT Dish_name FROM Dish WHERE Dish_id=$dish_id");
-    $dish = $result ? $result->fetch_assoc() : null;
-?>
-<tr>
-    <td><?= $dish ? $dish['Dish_name'] : 'Unknown' ?></td>
-    <td><?= $item['quantity'] ?></td>
-    <td>
-        <form method="POST">
-            <input type="hidden" name="cart_index" value="<?= $index ?>">
-            <button type="submit" name="remove_from_cart">Remove</button>
-        </form>
-    </td>
-</tr>
-<?php endforeach; ?>
-</table>
-
-<!-- place order -->
-<h3>Place Order</h3>
-<form method="POST">
-    Customer:
-    <select name="customer_id" required>
-        <?php while($c = $customers->fetch_assoc()): ?>
-            <option value="<?= $c['Customer_id'] ?>"
-                <?= ($c['Customer_id'] == $latestCustomerId) ? 'selected' : '' ?>>
-                <?= $c['Customer_name'] ?> (<?= $c['Customer_type'] ?>)
-            </option>
-        <?php endwhile; ?>
-    </select>
-    <br><br>
-
-    Cashier ID:
-    <select name="cashier_id" required>
-        <?php for ($i=1;$i<=5;$i++): ?>
-            <option value="<?= $i ?>"><?= $i ?></option>
-        <?php endfor; ?>
-    </select>
-    <br><br>
-
-    Table ID:
-    <select name="table_id" required>
-        <?php for ($i=11;$i<=15;$i++): ?>
-            <option value="<?= $i ?>"><?= $i ?></option>
-        <?php endfor; ?>
-    </select>
-    <br><br>
-
-    <button type="submit" name="place_order">Place Order</button>
-</form>
-<?php else: ?>
-<p>Cart is empty.</p>
-<?php endif; ?>
-
-<!-- payment -->
-<h2>Payment</h2>
-<form method="POST">
-    Order:
-    <select name="order_id" required>
-        <?php 
-        $unpaidOrders = $conn->query("
-            SELECT Order_id, Total_amount 
-            FROM Orders 
-            WHERE Order_status != 'Prepared'
-        ");
-        while($o = $unpaidOrders->fetch_assoc()): ?>
-            <option value="<?= $o['Order_id'] ?>">
-                Order #<?= $o['Order_id'] ?> - ₱<?= number_format($o['Total_amount'],2) ?>
-            </option>
-        <?php endwhile; ?>
-    </select>
-    <br><br>
-
-    <!-- select customer (default most recent) -->
-    Customer:
-    <select name="customer_id" required>
-        <?php
-        $customers = $conn->query("SELECT Customer_id, Customer_name, Customer_type FROM Customer");
-        // get most recently added customer
-        $latestCustomerResult = $conn->query("SELECT Customer_id FROM Customer ORDER BY Customer_id DESC LIMIT 1");
-        $latestCustomer = $latestCustomerResult ? $latestCustomerResult->fetch_assoc() : null;
-        $latestCustomerId = $latestCustomer ? $latestCustomer['Customer_id'] : null;
-
-        while($c = $customers->fetch_assoc()): ?>
-            <option value="<?= $c['Customer_id'] ?>"
-                <?= ($c['Customer_id'] == $latestCustomerId) ? 'selected' : '' ?>>
-                <?= $c['Customer_name'] ?> (<?= $c['Customer_type'] ?>)
-            </option>
-        <?php endwhile; ?>
-    </select>
-    <br><br>
-
-    Cashier ID:
-    <select name="cashier_id" required>
-        <?php for ($i = 1; $i <= 5; $i++): ?>
-            <option value="<?= $i ?>"><?= $i ?></option>
-        <?php endfor; ?>
-    </select>
-    <br><br>
-
-    Payment Method:
-    <select name="payment_method">
-        <option value="Cash">Cash</option>
-        <option value="Gcash">Gcash</option>
-        <option value="Paymaya">Paymaya</option>
-    </select>
-    <br><br>
-
-    Amount Paid: <input type="number" step="0.01" name="amount_paid" required><br><br>
-
-    <button type="submit" name="pay_order">Pay</button>
-</form>
-
-
-
-</body>
-</html>
