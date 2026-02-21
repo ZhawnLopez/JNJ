@@ -20,6 +20,7 @@ CREATE TABLE Waiter (
     Waiter_shift VARCHAR(10) CHECK(Waiter_shift IN ('Morning', 'Afternoon', 'Full')),
     Date_hired DATE NOT NULL
 );
+ALTER TABLE Cashier AUTO_INCREMENT = 3001;
 
 CREATE TABLE Manager (
     Manager_id INT PRIMARY KEY AUTO_INCREMENT, 
@@ -29,6 +30,7 @@ CREATE TABLE Manager (
     Password VARCHAR(255) NOT NULL,
     Date_hired DATE NOT NULL
 );
+ALTER TABLE Manager AUTO_INCREMENT = 5201;
 
 CREATE TABLE Dish ( 
     Dish_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -39,6 +41,7 @@ CREATE TABLE Dish (
     Availability_status VARCHAR(45) NOT NULL CHECK (Availability_status IN ('Available','Unavailable')),
     Ingredients VARCHAR(255)
 ); 
+ALTER TABLE Dish AUTO_INCREMENT = 301;
 
 CREATE TABLE Cart (
     Cart_id INT PRIMARY KEY AUTO_INCREMENT, 
@@ -54,6 +57,7 @@ CREATE TABLE Tables (
     Waiter_id INT,
     CONSTRAINT fk_table_waiter FOREIGN KEY (Waiter_id) REFERENCES Waiter(Waiter_id) 
 ); 
+ALTER TABLE Tables AUTO_INCREMENT = 201;
 
 CREATE TABLE Orders ( 
     Order_id INT PRIMARY KEY AUTO_INCREMENT, 
@@ -66,7 +70,7 @@ CREATE TABLE Orders (
     CONSTRAINT fk_order_table
         FOREIGN KEY (Table_id) REFERENCES Tables(Table_id), 
     CONSTRAINT fk_order_cashier  
-        FOREIGN KEY (Cashier_id) REFERENCES Cashier(Cashier_id), 
+        FOREIGN KEY (Cashier_id) REFERENCES Cashier(Cashier_id)
 ); 
 
 CREATE TABLE Chef ( 
@@ -80,6 +84,7 @@ CREATE TABLE Chef (
     Order_id INT, 
     CONSTRAINT fk_chef_order FOREIGN KEY (Order_id) REFERENCES Orders(Order_id) 
 ); 
+ALTER TABLE Cashier AUTO_INCREMENT = 4001;
 
 CREATE TABLE Payment ( 
     Payment_id INT PRIMARY KEY AUTO_INCREMENT, 
@@ -95,6 +100,7 @@ CREATE TABLE Payment (
     CONSTRAINT fk_payment_order 
         FOREIGN KEY (Order_id) REFERENCES Orders(Order_id)
 ); 
+ALTER TABLE Payment AUTO_INCREMENT = 497201;
 
 CREATE TABLE Ingredients ( 
     Ingredients_id INT PRIMARY KEY AUTO_INCREMENT, 
@@ -121,4 +127,5 @@ CREATE TABLE Supply (
     Supplier_name VARCHAR(45) NOT NULL,
     Manager_id INT NOT NULL,
     CONSTRAINT fk_supply_manager FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id) 
-); 
+);
+ALTER TABLE Supply AUTO_INCREMENT = 8901;
