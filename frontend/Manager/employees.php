@@ -7,7 +7,7 @@ require '../../backend/employeeint.php';
 <section class="min-h-screen flex flex-1 overflow-hidden">
     <!-- Sidebar -->
     <div class="w-1/5 p-6 overflow-y-auto flex flex-col gap-4 bg-gray-700 text-white font-bold *:shadow-lg *:rounded-lg *:duration-200 *:p-2 *:py-4 *:hover:bg-gray-600">
-        <a href="menu.php">Menu</a>    
+        <a href="menutables.php">Menu & Tables</a>     
         <a href="stock.php">Stock</a>
         <a href="employees.php">Employees</a>
     </div>
