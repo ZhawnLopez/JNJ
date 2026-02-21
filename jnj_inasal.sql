@@ -7,7 +7,7 @@ CREATE TABLE Cashier (
     Cashier_email VARCHAR(100) NOT NULL UNIQUE, 
     Cashier_contact_num VARCHAR(20) NOT NULL UNIQUE, 
     Cashier_shift VARCHAR(10) CHECK(Cashier_shift IN ('Morning', 'Afternoon', 'Full')),
-    Date_hired DATE, 
+    Date_hired DATE NOT NULL, 
     Total_transactions INT
 ); 
 ALTER TABLE Cashier AUTO_INCREMENT = 2001;
@@ -81,6 +81,7 @@ CREATE TABLE Chef (
     Speciality VARCHAR(100), 
     Chef_shift VARCHAR(10) CHECK(Chef_shift IN ('Morning', 'Afternoon', 'Full')),
     Years_of_experience INT CHECK (Years_of_experience >= 0), 
+    Date_hired DATE NOT NULL,
     Order_id INT, 
     CONSTRAINT fk_chef_order FOREIGN KEY (Order_id) REFERENCES Orders(Order_id) 
 ); 
