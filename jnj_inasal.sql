@@ -65,6 +65,7 @@ CREATE TABLE Orders (
     Order_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
     Total_amount DECIMAL(10,2) NOT NULL CHECK (Total_amount >= 0), 
     Order_status VARCHAR(50) NOT NULL DEFAULT 'Preparing' CHECK (Order_status IN ('Preparing','Prepared')),
+    Customer_type VARCHAR(10) NOT NULL DEFAULT 'Regular' CHECK (Customer_type IN('Regular', 'PWD', 'Dine In', 'Takeout', 'Delivery')),
     Table_id INT NOT NULL,
     Cashier_id INT NOT NULL, 
     CONSTRAINT fk_order_table
