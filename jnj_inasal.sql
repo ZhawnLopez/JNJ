@@ -20,7 +20,7 @@ CREATE TABLE Waiter (
     Waiter_shift VARCHAR(10) CHECK(Waiter_shift IN ('Morning', 'Afternoon', 'Full')),
     Date_hired DATE NOT NULL
 );
-ALTER TABLE Cashier AUTO_INCREMENT = 3001;
+ALTER TABLE Waiter AUTO_INCREMENT = 3001;
 
 CREATE TABLE Manager (
     Manager_id INT PRIMARY KEY AUTO_INCREMENT, 
@@ -84,7 +84,7 @@ CREATE TABLE Chef (
     Order_id INT, 
     CONSTRAINT fk_chef_order FOREIGN KEY (Order_id) REFERENCES Orders(Order_id) 
 ); 
-ALTER TABLE Cashier AUTO_INCREMENT = 4001;
+ALTER TABLE Chef AUTO_INCREMENT = 4001;
 
 CREATE TABLE Payment ( 
     Payment_id INT PRIMARY KEY AUTO_INCREMENT, 
