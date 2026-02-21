@@ -12,7 +12,6 @@ require '../../backend/employeeint.php';
         <a href="employees.php">Employees</a>
     </div>
 
-
     <!-- Main Content -->
     <div class="flex-1 m-8 bg-gray-300 rounded-lg p-4 flex flex-col shadow-lg gap-4 overflow-y-auto px-10">
         <div class="flex justify-between items-center">
@@ -66,7 +65,7 @@ require '../../backend/employeeint.php';
         <table class="table-fixed w-full border-collapse text-center">
             <thead>
                 <tr class="bg-gray-100 *:p-2">
-                    <th>ID</th><th>Name</th><th>Contact</th><th>Shift</th><th>Section</th><th>Date Hired</th><th>Actions</th>
+                    <th>ID</th><th>Name</th><th>Email</th><th>Contact</th><th>Shift</th><th>Date Hired</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -74,18 +73,18 @@ require '../../backend/employeeint.php';
                 <tr class="bg-white *:p-2 text-center">
                     <td><?= $w['Waiter_id'] ?></td>
                     <td><?= htmlspecialchars($w['Waiter_name']) ?></td>
+                    <td><?= htmlspecialchars($w['Waiter_email']) ?></td>
                     <td><?= htmlspecialchars($w['Waiter_contact_num']) ?></td>
                     <td><?= htmlspecialchars($w['Waiter_shift']) ?></td>
-                    <td><?= htmlspecialchars($w['Assigned_section']) ?></td>
                     <td><?= $w['Date_hired'] ?></td>
                     <td>
                         <button class="editBtn px-2 m-0.5 rounded bg-gray-200" data-type="Waiter" 
                                 data-id="<?= $w['Waiter_id'] ?>"
                                 data-name="<?= htmlspecialchars($w['Waiter_name']) ?>"
+                                data-email="<?= htmlspecialchars($w['Waiter_email']) ?>"
                                 data-contact="<?= htmlspecialchars($w['Waiter_contact_num']) ?>"
                                 data-shift="<?= htmlspecialchars($w['Waiter_shift']) ?>"
-                                data-date_hired="<?= $w['Date_hired'] ?>"
-                                data-section="<?= htmlspecialchars($w['Assigned_section']) ?>">
+                                data-date_hired="<?= $w['Date_hired'] ?>">
                             Edit
                         </button>
                         <form method="POST" style="display:inline" onsubmit="return confirm('Delete this employee?');">
@@ -105,7 +104,7 @@ require '../../backend/employeeint.php';
         <table class="table-fixed w-full border-collapse text-center">
             <thead>
                 <tr class="bg-gray-100 *:p-2">
-                    <th>ID</th><th>Name</th><th>Email</th><th>Contact</th><th>Speciality</th><th>Shift</th><th>Exp</th><th>Actions</th>
+                    <th>ID</th><th>Name</th><th>Email</th><th>Contact</th><th>Speciality</th><th>Shift</th><th>Date Hired</th><th>Exp</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -117,6 +116,7 @@ require '../../backend/employeeint.php';
                     <td><?= htmlspecialchars($ch['Chef_contact_num']) ?></td>
                     <td><?= htmlspecialchars($ch['Speciality']) ?></td>
                     <td><?= htmlspecialchars($ch['Chef_shift']) ?></td>
+                    <td><?= $ch['Date_hired'] ?></td>
                     <td><?= $ch['Years_of_experience'] ?></td>
                     <td>
                         <button class="editBtn px-2 m-0.5 rounded bg-gray-200" data-type="Chef" 
@@ -125,6 +125,7 @@ require '../../backend/employeeint.php';
                                 data-email="<?= htmlspecialchars($ch['Chef_email']) ?>"
                                 data-contact="<?= htmlspecialchars($ch['Chef_contact_num']) ?>"
                                 data-shift="<?= htmlspecialchars($ch['Chef_shift']) ?>"
+                                data-date_hired="<?= $ch['Date_hired'] ?>"
                                 data-speciality="<?= htmlspecialchars($ch['Speciality']) ?>"
                                 data-years="<?= $ch['Years_of_experience'] ?>">
                             Edit
@@ -162,28 +163,54 @@ require '../../backend/employeeint.php';
             </div>
 
             <div id="commonFields" class="hidden space-y-2">
-                <input type="number" name="employee_id_manual" placeholder="Employee ID" class="w-full p-2 border rounded" required>
-                <input type="text" name="name" placeholder="Full Name" class="w-full p-2 border rounded" required>
-                <input type="email" name="email" placeholder="Email" class="w-full p-2 border rounded">
-                <input type="text" name="contact" placeholder="Contact Number" class="w-full p-2 border rounded">
-                <input type="text" name="shift" placeholder="Shift" class="w-full p-2 border rounded">
+                <div>
+                    <label for=name>Full Name</label>
+                    <input type="text" name="name" placeholder="John Doe" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="flex gap-2 items-center *:w-full">
+                    <div>
+                        <label for="email">Email</label>
+                        <input type="email" name="email" placeholder="sample@work.com" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="contact">Contact Number</label>
+                        <input type="text" name="contact" placeholder="09.." class="w-full p-2 border rounded">
+                    </div>
+                </div>
+                <div class="flex gap-2 items-center *:w-full">
+                    <div>
+                        <label for="shift">Shift</label>
+                        <select name="shift" class="w-full p-2 border rounded">
+                            <option value="">Select Shift</option>
+                            <option value="Morning">Morning</option>
+                            <option value="Afternoon">Afternoon</option>
+                            <option value="Full">Full</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="date_hired">Date Hired</label>
+                        <input type="date" name="date_hired" class="w-full p-2 border rounded">
+                    </div>
+                </div>
             </div>
 
-            <div id="cashierFields" class="hidden space-y-2">
-                <input type="number" name="total_transactions" placeholder="Total Transactions" class="w-full p-2 border rounded">
-                <input type="date" name="date_hired_cashier" class="w-full p-2 border rounded">
+            <div id="cashierFields" class="hidden space-y-2 flex gap-2 items-center *:w-full">
+                <div>
+                    <label for="total_transactions">Total Transactions</label>
+                    <input type="number" name="total_transactions" placeholder="0" class="w-full p-2 border rounded">
+                </div>
             </div>
 
-            <div id="waiterFields" class="hidden space-y-2">
-                <input type="text" name="assigned_section" placeholder="Assigned Section" class="w-full p-2 border rounded">
-                <input type="date" name="date_hired_waiter" class="w-full p-2 border rounded">
+            <div id="chefFields" class="hidden space-y-2 flex gap-2 items-center *:w-full">
+                <div>
+                    <label for="speciality">Speciality</label>
+                    <input type="text" name="speciality" placeholder="Desserts, Soups, Italian.." class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label for="years_experience">Years of Experience</label>
+                    <input type="number" name="years_experience" placeholder="2" class="w-full p-2 border rounded" min="0">
+                </div>
             </div>
-
-            <div id="chefFields" class="hidden space-y-2">
-                <input type="text" name="speciality" placeholder="Speciality" class="w-full p-2 border rounded">
-                <input type="number" name="years_experience" placeholder="Years of Experience" class="w-full p-2 border rounded" min="0">
-            </div>
-
             <div class="flex justify-end gap-2 mt-4">
                 <button type="button" id="cancelBtn" class="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500">Cancel</button>
                 <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-500">Save</button>
@@ -200,30 +227,36 @@ const cancelBtn = document.getElementById('cancelBtn');
 const employeeTypeSelect = document.getElementById('employeeType');
 const commonFields = document.getElementById('commonFields');
 const cashierFields = document.getElementById('cashierFields');
-const waiterFields = document.getElementById('waiterFields');
 const chefFields = document.getElementById('chefFields');
 const formActionInput = document.getElementById('formAction');
 const modalTitle = document.getElementById('modalTitle');
 const employeeIdInput = document.getElementById('employeeId');
+const employeeForm = document.getElementById('employeeForm');
 
 openBtn.addEventListener('click', () => {
+    resetEmployeeForm();
     modal.classList.remove('hidden');
-    formActionInput.value = 'register';
-    modalTitle.textContent = 'Register New Employee';
-    employeeTypeSelect.disabled = false;
 });
 
 cancelBtn.addEventListener('click', () => {
+    resetEmployeeForm();
     modal.classList.add('hidden');
-    employeeTypeSelect.value = '';
-    hideAllFields();
 });
 
 function hideAllFields() {
     commonFields.classList.add('hidden');
     cashierFields.classList.add('hidden');
-    waiterFields.classList.add('hidden');
     chefFields.classList.add('hidden');
+}
+
+function resetEmployeeForm() {
+    employeeForm.reset(); // Clears all input values
+    formActionInput.value = 'register';
+    employeeIdInput.value = '';
+    modalTitle.textContent = 'Register New Employee';
+    employeeTypeSelect.disabled = false;
+    employeeTypeSelect.value = '';
+    hideAllFields();
 }
 
 // Show fields based on selected employee type
@@ -233,7 +266,6 @@ employeeTypeSelect.addEventListener('change', () => {
     if (!type) return;
     commonFields.classList.remove('hidden');
     if (type==='Cashier') cashierFields.classList.remove('hidden');
-    if (type==='Waiter') waiterFields.classList.remove('hidden');
     if (type==='Chef') chefFields.classList.remove('hidden');
 });
 
@@ -251,23 +283,16 @@ document.querySelectorAll('.editBtn').forEach(btn => {
         commonFields.classList.remove('hidden');
 
         // Fill common fields
-        const idInput = commonFields.querySelector('[name="employee_id_manual"]');
-        idInput.value = btn.dataset.id;
-        idInput.disabled = false; // disable ID editing in update
         document.querySelector('[name="name"]').value = btn.dataset.name || '';
         document.querySelector('[name="email"]').value = btn.dataset.email || '';
         document.querySelector('[name="contact"]').value = btn.dataset.contact || '';
         document.querySelector('[name="shift"]').value = btn.dataset.shift || '';
+        document.querySelector('[name="date_hired"]').value = btn.dataset.date_hired || '';
 
         // Fill type-specific fields
         if(btn.dataset.type==='Cashier'){
             cashierFields.classList.remove('hidden');
             document.querySelector('[name="total_transactions"]').value = btn.dataset.total_transactions || '';
-            document.querySelector('[name="date_hired_cashier"]').value = btn.dataset.date_hired || '';
-        } else if(btn.dataset.type==='Waiter'){
-            waiterFields.classList.remove('hidden');
-            document.querySelector('[name="assigned_section"]').value = btn.dataset.section || '';
-            document.querySelector('[name="date_hired_waiter"]').value = btn.dataset.date_hired || '';
         } else if(btn.dataset.type==='Chef'){
             chefFields.classList.remove('hidden');
             document.querySelector('[name="speciality"]').value = btn.dataset.speciality || '';
