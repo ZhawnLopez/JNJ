@@ -2,17 +2,18 @@ CREATE DATABASE jnj_inasal;
 USE jnj_inasal;
 
 CREATE TABLE Cashier ( 
-    Cashier_id INT PRIMARY KEY,
+    Cashier_id INT PRIMARY KEY AUTO_INCREMENT,
     Cashier_name VARCHAR(45) NOT NULL, 
     Cashier_email VARCHAR(100) NOT NULL UNIQUE, 
     Cashier_contact_num VARCHAR(20) NOT NULL UNIQUE, 
-    Cashier_shift VARCHAR(10) CHECK(Waiter_shift IN ('Morning', 'Afternoon', 'Full')),
+    Cashier_shift VARCHAR(10) CHECK(Cashier_shift IN ('Morning', 'Afternoon', 'Full')),
     Date_hired DATE, 
     Total_transactions INT
 ); 
+ALTER TABLE Cashier AUTO_INCREMENT = 2001;
 
 CREATE TABLE Waiter ( 
-    Waiter_id INT PRIMARY KEY,
+    Waiter_id INT PRIMARY KEY AUTO_INCREMENT,
     Waiter_name VARCHAR(45) NOT NULL,
     Waiter_email VARCHAR(100) NOT NULL UNIQUE, 
     Waiter_contact_num VARCHAR(20) NOT NULL UNIQUE,
@@ -21,7 +22,7 @@ CREATE TABLE Waiter (
 );
 
 CREATE TABLE Manager (
-    Manager_id INT PRIMARY KEY, 
+    Manager_id INT PRIMARY KEY AUTO_INCREMENT, 
     Manager_name VARCHAR(45) NOT NULL,
     Manager_email VARCHAR(45) NOT NULL UNIQUE,
     Manager_contact_num VARCHAR(20) NOT NULL UNIQUE, 
@@ -47,7 +48,7 @@ CREATE TABLE Cart (
 ); 
 
 CREATE TABLE Tables ( 
-    Table_id INT PRIMARY KEY,
+    Table_id INT PRIMARY KEY AUTO_INCREMENT,
     Table_capacity INT,
     Table_status VARCHAR(45) NOT NULL CHECK(Table_status IN ('Dirty', 'Available', 'Occupied')),
     Waiter_id INT,
@@ -69,7 +70,7 @@ CREATE TABLE Orders (
 ); 
 
 CREATE TABLE Chef ( 
-    Chef_id INT PRIMARY KEY, 
+    Chef_id INT PRIMARY KEY AUTO_INCREMENT, 
     Chef_name VARCHAR(45) NOT NULL, 
     Chef_email VARCHAR(45) NOT NULL UNIQUE, 
     Chef_contact_num VARCHAR(20) NOT NULL UNIQUE, 
@@ -110,7 +111,7 @@ CREATE TABLE Ingredients (
 ); 
 
 CREATE TABLE Supply (
-    Supply_id INT PRIMARY KEY AUTO_INCREMENT, 
+    Supply_id INT PRIMARY KEY AUTO_INCREMENT,
     Supply_Name VARCHAR(45) NOT NULL, 
     Supply_Quantity INT NOT NULL, 
     Unit_of_measure VARCHAR(45) NOT NULL, 
