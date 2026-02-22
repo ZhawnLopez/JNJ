@@ -195,7 +195,7 @@
 
 <script>
     const paymentSelect = document.getElementById('paymentMethod');
-    const transactionInput = document.getElementById('transaciton_num'); // Keep your typo for compatibility
+    const transactionInput = document.getElementById('transaciton_num');
     const modal = document.getElementById('paymentModal');
     const openBtn = document.getElementById('openPaymentModal');
     const cancelBtn = document.getElementById('cancelBtn');
@@ -203,10 +203,9 @@
     openBtn.addEventListener('click', () => {
         const cashierVal = document.querySelector('select[name="cashier_id"]').value;
         const tableVal = document.querySelector('select[name="table_id"]').value;
-        const customerType = document.getElementById('customer_type').value; // Get type
+        const customerType = document.getElementById('customer_type').value;
         document.getElementById('modalCustomerType').value = customerType;
 
-        // Sync Modal Totals with the current cart state
         const rawTotal = parseFloat(document.getElementById('display-total').dataset.rawTotal);
         const modalDiscountRow = document.getElementById('modal-discount-row');
         const modalNetRow = document.getElementById('modal-net-row');
@@ -215,20 +214,21 @@
             alert("Please select both a Cashier and a Table.");
             return;
         }
-        
+        //thsi can do
+        //discount in modal part
         if (customerType === 'PWD') {
             const discount = rawTotal * 0.20;
             const net = rawTotal - discount;
 
             document.getElementById('modal-discount-amount').innerText = `-₱${discount.toFixed(2)}`;
             document.getElementById('modal-net-total').innerText = `₱${net.toFixed(2)}`;
-            
+            //show discount row
             modalDiscountRow.classList.remove('hidden');
             modalDiscountRow.classList.add('flex');
             modalNetRow.classList.remove('hidden');
             modalNetRow.classList.add('flex');
         } else {
-            modalDiscountRow.classList.add('hidden');
+            modalDiscountRow.classList.add('hidden');//else hid it
             modalDiscountRow.classList.remove('flex');
             modalNetRow.classList.add('hidden');
             modalNetRow.classList.remove('flex');
@@ -236,7 +236,7 @@
 
         document.getElementById('modalCashier').value = cashierVal;
         document.getElementById('modalTable').value = tableVal;
-        modal.classList.remove('hidden');
+        modal.classList.remove('hidden'); //show payment modal
     });
 
     cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
@@ -256,7 +256,7 @@
 
     paymentSelect.dispatchEvent(new Event('change'));
 
-    //toggles discount
+    //toggles discount in cart part
     function applyDiscount() {
         const type = document.getElementById('customer_type').value;
         const rawTotal = parseFloat(document.getElementById('display-total').dataset.rawTotal);
