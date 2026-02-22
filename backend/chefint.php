@@ -44,8 +44,16 @@ if (isset($_POST['take_order'])) {
 
 if (isset($_POST['mark_prepared'])) {
     $order_id = (int)$_POST['order_id'];
-    $update = $conn->query("UPDATE Orders SET Order_status='Prepared'WHERE Order_id=$order_id");
-    $message = $update ? "Order #$order_id marked as Prepared!" : "Failed to update order: " . $conn->error;
+    $chef_id = (int)$_POST['chef_id'];
+    $unsetChef = $conn->query("UPDATE Chef SET Order_id = NULL WHERE Chef_id = $chef_id");
+    $updateOrder = $conn->query("UPDATE Orders SET Order_status = 'Prepared' WHERE Order_id = $order_id");
+    if ($unsetChef && $updateOrder) {
+        $_SESSION['message'] = "Order #$order_id is now Prepared";
+    } else {
+        $_SESSION['message'] = "Error finishing order: " . $conn->error;
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // gets Orders being prepped/notready, gets Chef name, makes sure that each Order is being prepped by a Chef basically
