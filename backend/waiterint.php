@@ -62,7 +62,7 @@ $tables = $conn->query("SELECT t.Table_id, t.Table_number, t.Table_status, w.Wai
                         ORDER BY t.Table_number ASC");
 
 $preparingOrders = $conn->query("SELECT * FROM Orders WHERE Order_status='Preparing' ORDER BY Order_date ASC");
-$preparedOrders = $conn->query("SELECT o.Order_id, o.Table_id, o.Total_amount, o.Order_items, t.Table_number
+$preparedOrders = $conn->query("SELECT o.*, t.Table_number
                                 FROM Orders o 
                                 JOIN Tables t ON o.Table_id=t.Table_id
                                 WHERE o.Order_status='Prepared'

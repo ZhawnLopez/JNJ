@@ -31,8 +31,15 @@ if (isset($_POST['update_ingredient'])) {
 if (isset($_POST['take_order'])) {
     $order_id = (int)$_POST['order_id'];
     $chef_id = (int)$_POST['chef_id'];
-    $update = $conn->query("UPDATE Orders SET Chef_id=$chef_id WHERE Order_id=$order_id AND (Chef_id IS NULL OR Chef_id=0)");
-    $message = $update ? "Order #$order_id taken!" : "Failed to take order: " . $conn->error;
+    $update = $conn->query("UPDATE Chef SET Order_id = $order_id WHERE Chef_id = $chef_id");
+    $conn->query("UPDATE Chef SET Order_id=$order_id WHERE Chef_id=$chef_id");
+    if ($update) {
+        $_SESSION['message'] = "Order #$order_id is now being prepared by Chef #$chef_id";
+    } else {
+        $_SESSION['message'] = "Error assigning order: " . $conn->error;
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 if (isset($_POST['mark_prepared'])) {
@@ -45,6 +52,10 @@ if (isset($_POST['mark_prepared'])) {
 // if chef is prepping an order, it shows chef name, if no chef is on an order , that order will still be there in the results just waiting for a chef
 // DAMN I CANNOT EXPLAIN STUFF
 $ingredients = $conn->query("SELECT i.*, c.Chef_name, c.Chef_id FROM Ingredients i JOIN Chef c ON i.Chef_id = c.Chef_id ORDER BY i.Ingredients_id ASC");
-$preparingOrders = $conn->query("SELECT o.*, c.Chef_name FROM Orders o LEFT JOIN Chef c ON o.Chef_id = c.Chef_id WHERE o.Order_status='Preparing'ORDER BY o.Order_id ASC");
+//orders that have not yet been accepted by any chefs
+$newOrders = $conn->query("SELECT * FROM Orders WHERE Order_id NOT IN (SELECT Order_id FROM Chef WHERE Order_id IS NOT NULL) AND Order_status = 'Preparing'");
+//preparing orders should be orders WITH CHEF ID
+$preparingOrders = $conn->query("SELECT o.*, c.Chef_name, c.Chef_id FROM Orders o JOIN Chef c ON o.Order_id = c.Order_id WHERE o.Order_status = 'Preparing'");
+$availableChefs = $conn->query("SELECT Chef_id, Chef_name FROM Chef WHERE Order_id IS NULL");
 $chefs = $conn->query("SELECT Chef_id FROM Chef ORDER BY Chef_id ASC");
 ?>
