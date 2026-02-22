@@ -97,16 +97,25 @@
 
         <div class="flex justify-between font-bold text-xl">
             <span>Total:</span>
-            <span>₱<?= number_format($total, 2); ?></span>
+            <span id="display-total" data-raw-total="<?= $total ?>">₱<?= number_format($total, 2); ?></span>
         </div>
 
+        <div id="discount-row" class="flex justify-between font-bold text-lg text-red-600 hidden">
+            <span>Discount (20%):</span>
+            <span id="display-discount">-₱0.00</span>
+        </div>
+
+        <div id="final-total-row" class="flex justify-between font-bold text-xl hidden border-t mt-2">
+            <span>Net Total:</span>
+            <span id="display-net-total">₱0.00</span>
+        </div>
         
 
 
         <!-- ================== PLACE ORDER ================== -->
         <form method="POST" class="mt-6 space-y-3">
             <label for="customer_type">Customer Type:</label>
-            <select name="customer_type" class="w-full p-2 border rounded" required>
+            <select name="customer_type" id="customer_type" class="w-full p-2 border rounded" onchange="applyDiscount()" required>
                 <option value="Regular">Regular</option>
                 <option value="PWD">PWD</option>
                 <option value="Dine In">Dine In</option>
@@ -145,20 +154,21 @@
             <p class="text-center p-2 m-2 font-semibold">Waiting for Payment....</p>
             <input type="hidden" name="cashier_id" id="modalCashier">
             <input type="hidden" name="table_id" id="modalTable">
+            <input type="hidden" name="customer_type" id="modalCustomerType">
             <div class="flex justify-between font-bold text-xl">
                 <span>Total:</span>
-                <span>₱<?= number_format($total, 2); ?></span>
+                <span id="modal-base-total">₱<?= number_format($total, 2); ?></span>
             </div>
-            <?php if ($discount_percentage > 0): ?>
-                <div class="flex justify-between font-bold text-xl text-red-600">
-                    <span>Discount (PWD 20%):</span>
-                    <span>-₱<?= number_format($total - $discounted_total, 2); ?></span>
-                </div>
-                <div class="flex justify-between font-bold text-xl">
-                    <span>Discounted Total:</span>
-                    <span>₱<?= number_format($discounted_total, 2); ?></span>
-                </div>
-            <?php endif; ?>
+
+            <div id="modal-discount-row" class="justify-between font-bold text-xl text-red-600 hidden">
+                <span>Discount (PWD 20%):</span>
+                <span id="modal-discount-amount">-₱0.00</span>
+            </div>
+
+            <div id="modal-net-row" class="justify-between font-bold text-2xl border-t-2 border-gray-200 pt-2 hidden">
+                <span>Amount to Pay:</span>
+                <span id="modal-net-total">₱0.00</span>
+            </div>
             <div class="flex gap-2">
                 <input type="number" step="0.01" name="amount_paid" placeholder="Amount Paid" class="w-full p-2 border rounded" required>
 
@@ -191,19 +201,41 @@
     const cancelBtn = document.getElementById('cancelBtn');
     
     openBtn.addEventListener('click', () => {
-        // Find the select elements by name
         const cashierVal = document.querySelector('select[name="cashier_id"]').value;
         const tableVal = document.querySelector('select[name="table_id"]').value;
+        const customerType = document.getElementById('customer_type').value; // Get type
+        document.getElementById('modalCustomerType').value = customerType;
+
+        // Sync Modal Totals with the current cart state
+        const rawTotal = parseFloat(document.getElementById('display-total').dataset.rawTotal);
+        const modalDiscountRow = document.getElementById('modal-discount-row');
+        const modalNetRow = document.getElementById('modal-net-row');
 
         if (!cashierVal || !tableVal) {
             alert("Please select both a Cashier and a Table.");
             return;
         }
+        
+        if (customerType === 'PWD') {
+            const discount = rawTotal * 0.20;
+            const net = rawTotal - discount;
 
-        // Assign values to the hidden inputs inside the modal form
+            document.getElementById('modal-discount-amount').innerText = `-₱${discount.toFixed(2)}`;
+            document.getElementById('modal-net-total').innerText = `₱${net.toFixed(2)}`;
+            
+            modalDiscountRow.classList.remove('hidden');
+            modalDiscountRow.classList.add('flex');
+            modalNetRow.classList.remove('hidden');
+            modalNetRow.classList.add('flex');
+        } else {
+            modalDiscountRow.classList.add('hidden');
+            modalDiscountRow.classList.remove('flex');
+            modalNetRow.classList.add('hidden');
+            modalNetRow.classList.remove('flex');
+        }
+
         document.getElementById('modalCashier').value = cashierVal;
         document.getElementById('modalTable').value = tableVal;
-
         modal.classList.remove('hidden');
     });
 
@@ -223,6 +255,29 @@
     });
 
     paymentSelect.dispatchEvent(new Event('change'));
+
+    //toggles discount
+    function applyDiscount() {
+        const type = document.getElementById('customer_type').value;
+        const rawTotal = parseFloat(document.getElementById('display-total').dataset.rawTotal);
+        
+        const discRow = document.getElementById('discount-row');
+        const netRow = document.getElementById('final-total-row');
+        
+        if (type === 'PWD') {
+            const discount = rawTotal * 0.20;
+            const net = rawTotal - discount;
+            
+            document.getElementById('display-discount').innerText = `-₱${discount.toFixed(2)}`;
+            document.getElementById('display-net-total').innerText = `₱${net.toFixed(2)}`;
+            
+            discRow.classList.remove('hidden');
+            netRow.classList.remove('hidden');
+        } else {
+            discRow.classList.add('hidden');
+            netRow.classList.add('hidden');
+        }
+    }
 </script>
 
 <?php require '../footer.php' ?>

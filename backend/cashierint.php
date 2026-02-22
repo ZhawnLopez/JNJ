@@ -65,111 +65,48 @@ if(isset($_POST['delete_from_cart'])){
         exit();
     }
 }
-// place orders
+//-----------------pay order
 if (isset($_POST['pay_order'])) {
     $cashier_id = (int)$_POST['cashier_id'];
     $table_id = (int)$_POST['table_id'];
     $payment_method = $_POST['payment_method'];
     $amount_paid = (float)$_POST['amount_paid'];
-    $transaction_num = $_POST['transaction_num'] ?? '';
+    $transaction_num = trim($_POST['transaction_num']) ?? '';
+    $customer_type = $_POST['customer_type'] ?? 'Regular';
 
     if (!empty($_SESSION['cart'])) {
         $total_amount = 0;
-        $order_items_text = []; // store dishes as plain text
+        $order_items_text = [];
 
-        // calculate total and build plain text
+        //get total per dish
         foreach ($_SESSION['cart'] as $item) {
             $dish_id = (int)$item['dish_id'];
-            $quantity = (int)$item['quantity'];
-
-            $res = $conn->query("SELECT Dish_name, Price FROM Dish WHERE Dish_id=$dish_id");
-            if ($dish = $res->fetch_assoc()) {
-                $total_amount += $dish['Price'] * $quantity;
-                $order_items_text[] = $dish['Dish_name'] . " x" . $quantity;
-            }
-        }
-
-        // amount paid check
-        if ($amount_paid < $total_amount) {
-            $message = "Insufficient amount! Total is ₱" . number_format($total_amount, 2) .", amount paid: ₱" . number_format($amount_paid, 2);
-        } else {
-            // convert array to string
-            $order_items_text = implode(", ", $order_items_text);
-
-            // insert order
-            $insertOrder = $conn->query("INSERT INTO Orders (Order_items, Total_amount, Table_id, Cashier_id, Order_status) VALUES ('$order_items_text', $total_amount, $table_id, $cashier_id, 'Preparing')");
-
-            if ($insertOrder) {
-                $new_order_id = $conn->insert_id;
-
-                // insert payment
-                $pay = $conn->query("INSERT INTO Payment (Order_id, Amount_paid, Payment_method, Payment_status, Transaction_Num, Cashier_id) VALUES ($new_order_id, $amount_paid, '$payment_method', 'Paid', '$transaction_num', $cashier_id)");
-
-                if ($pay) {
-                    $_SESSION['cart'] = [];
-                    $_SESSION['message'] = "Order #$new_order_id paid successfully!";
-                    $_SESSION['payment_id'] = $conn->insert_id;
-                    $_SESSION['order_id'] = $new_order_id;
-                    header('Location: ../../frontend/Cashier/payment.php');
-                    exit();
-                } else {
-                    $message = "Payment Error: " . $conn->error;
-                }
-            } else {
-                $message = "Order Error: " . $conn->error;
-            }
-        }
-    } else {
-        $message = "Your cart is empty!";
-    }
-}
-
-// payment
-if (isset($_POST['pay_order'])) {
-    $cashier_id = (int)$_POST['cashier_id'];
-    $table_id = (int)$_POST['table_id'];
-    $payment_method = $_POST['payment_method'];
-    $amount_paid = (float)$_POST['amount_paid'];
-    $transaction_num = $_POST['transaction_num'] ?? '';
-    $customer_type = $_POST['customer_type'] ?? '';
-
-    $discount_percentage = 0;
-    if ($customer_type === 'PWD') {
-        $discount_percentage = 20;  // Apply a 20% discount for PWD customers
-    }
-    if (!empty($_SESSION['cart'])) {
-        $total_amount = 0;
-        $order_details = []; // store the dishes and quantity for order
-
-        // calculate total and build order details
-        foreach ($_SESSION['cart'] as $item) {
-            $dish_id = (int)$item['dish_id'];
-            $quantity = (int)$item['quantity'];
-
+            $qty = (int)$item['quantity'];
+            
             $res = $conn->query("SELECT Dish_name, Price FROM Dish WHERE Dish_id=$dish_id");
             if ($row = $res->fetch_assoc()) {
-                $item_price = (float)$row['Price'];
-                $total_amount += $item_price * $quantity;
-
-                $order_details[] = [
-                    'dish_id'   => $dish_id,
-                    'dish_name' => $row['Dish_name'],
-                    'quantity'  => $quantity,
-                    'price'     => $item_price
-                ];
+                $total_amount += (float)$row['Price'] * $qty;
+                //text array for order_items
+                $order_items_text[] = $row['Dish_name'] . " x" . $qty;
             }
         }
 
-        if ($discount_percentage > 0) {
-            $total_amount -= $total_amount * ($discount_percentage / 100);
+        //pwd discount
+        if ($customer_type === 'PWD') {
+            $total_amount = $total_amount * 0.80; 
         }
-        //amount paid must be more than total amount
+
+        //paid amount must be greater than total amount
         if ($amount_paid < $total_amount) {
-            $message = "Insufficient amount! Total is ₱" . number_format($total_amount, 2) . ", amount paid: ₱" . number_format($amount_paid, 2);
+            $_SESSION['message'] = "Insufficient amount! Total: ₱" . number_format($total_amount, 2);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
         } else {
-            // insert order
-            $order_items_json = json_encode($order_details);
-            $insertOrder = $conn->query("INSERT INTO Orders (Order_items, Total_amount, Customer_type, Table_id, Cashier_id, Order_status) VALUES ('$order_items_json', $total_amount, '$customer_type', $table_id, $cashier_id, 'Preparing')");
+            //text array of order items
+            $order_items_string = $conn->real_escape_string(implode(", ", $order_items_text));
+
+            //insert order
+            $insertOrder = $conn->query("INSERT INTO Orders (Order_items, Total_amount, Customer_type, Table_id, Cashier_id, Order_status) VALUES ('$order_items_string', $total_amount, '$customer_type', $table_id, $cashier_id, 'Preparing')");
 
             if ($insertOrder) {
                 $new_order_id = $conn->insert_id;
@@ -186,16 +123,20 @@ if (isset($_POST['pay_order'])) {
                     exit();
                 } else {
                     $message = "Payment Error: " . $conn->error;
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit();
                 }
             } else {
                 $message = "Order Error: " . $conn->error;
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit();
             }
         }
-
     } else {
         $message = "Your cart is empty!";
     }
 }
+
 $dishes = $conn->query("SELECT Dish_id, Dish_name, Price FROM Dish WHERE Availability_status='Available'");
 $cashiers = $conn->query("SELECT Cashier_id FROM Cashier");
 $availtables = $conn->query("SELECT Table_id FROM Tables");

@@ -12,24 +12,31 @@
 
             <hr class="my-2">
 
-            <h3 class="font-semibold mt-2">Order Items:</h3>
-            <?php if (!empty($items)) : ?>
-                <?php foreach ($items as $item) : ?>
-                    <p>
-                        <?php echo htmlspecialchars($item['dish_name']); ?> 
-                        x<?php echo (int)$item['quantity']; ?> 
-                        - ₱<?php echo number_format((float)$item['price'] * (int)$item['quantity'], 2); ?>
-                    </p>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>No items found.</p>
-            <?php endif; ?>
+           <h3 class="font-semibold mt-2">Order Items:</h3>
+                <?php $items_list = !empty($order['Order_items']) ? explode(", ", $order['Order_items']) : []; ?>
+                <?php if (!empty($items_list)) : ?>
+                    <?php foreach ($items_list as $item_string) : ?>
+                        <p>
+                            <?php echo htmlspecialchars($item_string); ?>
+                        </p>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No items found.</p>
+                <?php endif; ?>
 
             <hr class="my-2">
-
-            <p><strong>Total Amount:</strong> ₱<?php echo number_format((float)$total_amount, 2); ?></p>
+            <p class="flex">
+                <strong>Total Amount:</strong> 
+                <span>
+                    ₱<?php echo number_format((float)$total_amount, 2); ?>
+                    <?php if ($customer_type === 'PWD'): ?>
+                        <span class="text-red-500 text-sm font-bold ml-1">(Discounted)</span>
+                    <?php endif; ?>
+                </span>
+            </p>
             <p><strong>Amount Paid:</strong> ₱<?php echo number_format((float)$amount_paid, 2); ?></p>
             <p><strong>Change:</strong> ₱<?php echo number_format((float)$amount_paid - (float)$total_amount, 2); ?></p>
+            <p><strong>Customer Type:</strong> <?php echo htmlspecialchars($customer_type); ?></p>
             <p><strong>Payment Method:</strong> <?php echo htmlspecialchars($payment_method); ?></p>
             <p><strong>Status:</strong> <?php echo htmlspecialchars($status); ?></p>
         </div>

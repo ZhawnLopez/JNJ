@@ -30,12 +30,13 @@ if (!$order) {
     die("Order not found.");
 }
 
-//decode order items
-$items = json_decode($order['Order_items'], true);
-
 //values to show
+$items_raw = $order['Order_items'];
+$items_array = explode(", ", $items_raw);
+$customer_type = $order['Customer_type'] ?? 'Regular';
 $total_amount = $order['Total_amount'] ?? 0;
 $amount_paid = $payment['Amount_paid'] ?? 0;
+$change = $amount_paid - $total_amount;
 $payment_method = $payment['Payment_method'] ?? 'Unknown';
 $status = $payment['Payment_status'] ?? 'Pending';
 $transaction_date = $payment['Payment_date'] ?? date('Y-m-d H:i:s');
