@@ -3,6 +3,15 @@ require '../../frontend/header.php';
 include 'db.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+if (!isset($_SESSION['manager_id']) || $_SESSION['role'] !== 'admin') {
+    // Destroy session for safety
+    session_unset();
+    session_destroy();
+
+    // Redirect to login page
+    header("Location: verify.php");
+    exit();
+}
 // ---------------------- Handle Dish Actions ----------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
