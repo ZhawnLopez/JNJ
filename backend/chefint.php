@@ -4,7 +4,15 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 include 'db.php';
+// Fetch all dishes
+$dishes = $conn->query("SELECT Dish_id, Dish_name, Preparation_timeMin, Ingredients FROM Dish ORDER BY Dish_name ASC");
+if (!$dishes) {
+    die("Error fetching dishes: " . $conn->error);
+}
 
+// Get selected dish
+$selected_dish_id = null;
+$selected_dish = null;
 $message = "";
 
 if (isset($_POST['update_ingredient'])) {
@@ -56,10 +64,26 @@ if (isset($_POST['mark_prepared'])) {
     exit();
 }
 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dish_id'])) {
+    $selected_dish_id = (int)$_POST['dish_id'];
+    // Fetch the dish to get the ingredients column
+    $stmt = $conn->prepare("SELECT Dish_name, Ingredients, Preparation_timeMin, Dish_category FROM Dish WHERE Dish_id = ?");
+    $stmt->bind_param("i", $selected_dish_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $selected_dish = $result->fetch_assoc();
+    $stmt->close();
+}
+
 // gets Orders being prepped/notready, gets Chef name, makes sure that each Order is being prepped by a Chef basically
 // if chef is prepping an order, it shows chef name, if no chef is on an order , that order will still be there in the results just waiting for a chef
 // DAMN I CANNOT EXPLAIN STUFF
-$ingredients = $conn->query("SELECT i.*, c.Chef_name, c.Chef_id FROM Ingredients i JOIN Chef c ON i.Chef_id = c.Chef_id ORDER BY i.Ingredients_id ASC");
+$ingredients = $conn->query("SELECT i.*, c.Chef_name, c.Chef_id 
+                                FROM Ingredients i 
+                                JOIN Chef c ON i.Chef_id = c.Chef_id 
+                                ORDER BY i.Ingredients_id ASC");
+
 //orders that have not yet been accepted by any chefs
 $newOrders = $conn->query("SELECT * FROM Orders WHERE Order_id NOT IN (SELECT Order_id FROM Chef WHERE Order_id IS NOT NULL) AND Order_status = 'Preparing'");
 //preparing orders should be orders WITH CHEF ID

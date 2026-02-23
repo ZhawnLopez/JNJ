@@ -29,7 +29,7 @@
         <h1 class="font-bold text-center text-2xl pb-4 border-b">Preparing Orders</h1>
         <div class="grid grid-cols-3 overflow-y-auto">
             <?php while($row = $preparingOrders->fetch_assoc()): ?>
-            <div onclick="openCompleteModal(<?= $row['Order_id'] ?>)" 
+            <div onclick="openCompleteModal(<?= $row['Order_id'] ?>, <?= $row['Chef_id'] ?>)" 
                  class="cursor-pointer rounded-lg border bg-white flex flex-col items-center justify-center m-2 p-2 hover:shadow-inner hover:bg-green-50">
                 <p class="font-bold p-2 text-lg text-yellow-700">Order#<?= $row['Order_id'] ?></p>
                 <div class="pb-2 border-b w-full flex flex-col">
@@ -74,19 +74,10 @@
     <div id="completeModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
         <form method="POST" class="bg-white rounded-lg p-8 w-96 shadow-2xl">
             <h2 class="text-xl font-bold mb-2">Mark Order #<span id="completeOrderIdLabel"></span> as Done</h2>
-            <p class="text-sm text-gray-500 mb-4">Please confirm your identity to finish this order.</p>
+            <p class="text-sm text-gray-500 mb-4">Confirm that order is complete?</p>
             
             <input type="hidden" name="order_id" id="completeOrderIdInput">
-            
-            <label class="block mb-2 font-semibold">Chef ID:</label>
-            <select name="chef_id" class="w-full p-2 border rounded mb-6" required>
-                <option value="">Select Your ID</option>
-                <?php 
-                $chefs->data_seek(0); // Reset pointer
-                while($c = $chefs->fetch_assoc()): ?>
-                    <option value="<?= $c['Chef_id'] ?>"><?= $c['Chef_id'] ?></option>
-                <?php endwhile; ?>
-            </select>
+            <input type="hidden" name="chef_id" id="completeChefIdInput"> 
             
             <div class="flex gap-4">
                 <button type="button" onclick="closeCompleteModal()" class="flex-1 bg-gray-400 text-white py-2 rounded">Cancel</button>
@@ -104,16 +95,18 @@
     const completeModal = document.getElementById('completeModal');
     const completeLabel = document.getElementById('completeOrderIdLabel');
     const completeInput = document.getElementById('completeOrderIdInput');
-
-    function openAcceptModal(orderId) {
+    const completeChef = document.getElementById('completeChefIdInput');
+    function openAcceptModal(orderId, chefId) {
         document.getElementById('modalOrderIdLabel').textContent = orderId;
         document.getElementById('modalOrderIdInput').value = orderId;
+        document.getElementById('completeChefIdInput').value = chefId;
         acceptModal.classList.remove('hidden');
     }
 
-    function openCompleteModal(orderId) {
+    function openCompleteModal(orderId, chefId) {
         completeLabel.textContent = orderId;
         completeInput.value = orderId;
+        completeChef.value = chefId;
         completeModal.classList.remove('hidden');
     }
 
