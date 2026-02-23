@@ -56,9 +56,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id = (int)($_POST['ingredient_id'] ?? 0);
         $conn->query("DELETE FROM Ingredients WHERE Ingredients_id=$id");
         header("Location: " . $_SERVER['PHP_SELF']); exit();
+    } elseif ($action === 'restock') {
+
+    $ingredient_id = (int)$_POST['ingredient_id'];
+    $supply_id = (int)$_POST['supply_id'];
+    $add_quantity = (int)$_POST['add_quantity'];
+
+    // Get current supply quantity
+    $supply = $conn->query("SELECT Supply_Quantity FROM Supply WHERE Supply_id = $supply_id")->fetch_assoc();
+
+    if($supply && $supply['Supply_Quantity'] >= $add_quantity){
+
+        // Reduce supply stock
+        $conn->query("UPDATE Supply 
+                      SET Supply_Quantity = Supply_Quantity - $add_quantity 
+                      WHERE Supply_id = $supply_id");
+
+        // Increase ingredient quantity + set status to Good
+        $conn->query("UPDATE Ingredients 
+                      SET Quantity_available = Quantity_available + $add_quantity,
+                          Restock_status = 'Good'
+                      WHERE Ingredients_id = $ingredient_id");
+
+        header("Location: " . $_SERVER['PHP_SELF']); 
+        exit();
+    } else {
+        echo "<script>alert('Not enough supply stock available!');</script>";
+    }
+}elseif ($action === 'add_supply') {
+
+    $supply_name = $_POST['supply_name'] ?? '';
+    $quantity = (int)($_POST['supply_quantity'] ?? 0);
+    $unit = $_POST['unit_of_measure'] ?? '';
+    $price = (float)($_POST['price_per_unit'] ?? 0);
+    $date_procured = $_POST['date_procured'] ?? null;
+    $expiry = $_POST['expiry_date'] ?? null;
+    $supplier_name = $_POST['supplier_name'] ?? '';
+    $manager_id = $_SESSION['manager_id']; // logged in manager
+
+    if ($quantity < 0) {
+        echo "<script>alert('Quantity cannot be negative');</script>";
+    } else {
+
+        $stmt = $conn->prepare("INSERT INTO Supply
+            (Supply_Name, Supply_Quantity, Unit_of_measure, Price_per_unit,
+             Date_procured, Expiry_date, Supplier_name, Manager_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+        $stmt->bind_param(
+            "sisdsssi",
+            $supply_name,
+            $quantity,
+            $unit,
+            $price,
+            $date_procured,
+            $expiry,
+            $supplier_name,
+            $manager_id
+        );
+
+        $stmt->execute();
+        $stmt->close();
+
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 }
-
+}
 // Fetch ingredients for table
 $ingredients = $conn->query("SELECT i.*, c.Chef_name FROM Ingredients i JOIN Chef c ON i.Chef_id = c.Chef_id ORDER BY Ingredients_id ASC");
 $chefs = $conn->query("SELECT Chef_id, Chef_name FROM Chef ORDER BY Chef_id ASC");

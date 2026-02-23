@@ -16,7 +16,7 @@ require '../../backend/employeeint.php';
     <div class="flex-1 m-8 bg-gray-300 rounded-lg p-4 flex flex-col shadow-lg gap-4 overflow-y-auto px-10">
         <div class="flex justify-between items-center">
             <h1 class="text-5xl font-bold m-2">Employees</h1>
-            <button id="openEmployeeModal" class="rounded-lg bg-green-600 text-white font-semibold p-2 px-4">Register an Employee</button>
+            <button id="openEmployeeModal" class="rounded-lg bg-green-600 text-white font-semibold p-2 px-4 hover:bg-green-700 hover:shadow-md duration-200">Register an Employee</button>
         </div>
 
         <!-- Cashiers Table -->

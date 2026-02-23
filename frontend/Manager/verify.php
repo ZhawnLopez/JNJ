@@ -1,27 +1,43 @@
 <?php require '../../backend/verifyint.php' ?>
-
-<p>Verify</p>
-</div>
+        <p>Verify System</p>
+    </div>
 </nav>
 
-<section class="min-h-screen flex justify-center items-center text-2xl">
-    <form method="POST" class="shadow-lg bg-gray-300 rounded-2xl p-14 px-25 gap-4 flex flex-col text-center w-220 h-100">
+<section class="min-h-[calc(100vh-60px)] flex justify-center items-center bg-gray-50 p-6">
+    <form method="POST" class="bg-white shadow-xl rounded-2xl p-8 md:p-12 flex flex-col gap-6 w-full max-w-md border border-gray-100">
+        
+        <div class="text-center space-y-2">
+            <h1 class="font-extrabold text-3xl text-gray-800">Verify Identity</h1>
+            <p class="text-gray-500 text-sm">Please enter your credentials to continue.</p>
+        </div>
 
-        <h1 class="font-bold text-4xl p-2 text-center">Verify</h1>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Manager Name</label>
+                <input name="Manager_name" 
+                    class="w-full bg-white rounded-lg border border-gray-300 p-3 outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" 
+                    placeholder="Enter your name">
+            </div>
 
-        <input name="Manager_name" class="block text-2xl bg-gray-300 rounded-md border border-gray-400 p-2" placeholder="Name">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" name="password" 
+                    class="w-full bg-white rounded-lg border border-gray-300 p-3 outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" 
+                    placeholder="••••••••">
+            </div>
+        </div>
 
-        <input type="password" name="password" class="block text-2xl bg-gray-300 rounded-md border border-gray-400 p-2" placeholder="Password">
+        <div class="flex flex-col gap-3 pt-2">
+            <button type="submit" 
+                class="w-full text-white bg-red-600 rounded-lg p-3 font-bold hover:bg-red-700 shadow-md hover:shadow-lg transform active:scale-[0.98] transition-all">
+                Verify Now
+            </button>
 
-        <button type="submit" class="text-white text-2xl bg-red-700 mt-4 rounded-lg p-3 px-4 font-semibold hover:bg-red-600 duration-200">
-            Verify
-        </button>
-
-        <!-- RESET BUTTON -->
-        <button type="submit" name="reset_dummy"
-            class="text-white text-xl bg-blue-700 mt-2 rounded-lg p-3 px-4 font-semibold hover:bg-blue-600 duration-200">
-            Reset with Dummy Data
-        </button>
+            <button type="submit" name="reset_dummy"
+                class="w-full text-blue-600 bg-blue-50 rounded-lg p-3 font-semibold hover:bg-blue-100 transition-colors border border-blue-100">
+                Reset with Dummy Data
+            </button>
+        </div>
 
     </form>
 </section>

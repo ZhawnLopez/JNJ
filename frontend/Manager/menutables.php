@@ -14,7 +14,7 @@ require '../../backend/menutablesint.php';
     <div class="flex-1 m-8 bg-gray-300 rounded-lg p-4 flex flex-col shadow-lg gap-4 overflow-y-auto px-10">
         <div class="flex justify-between items-center">
             <h1 class="text-5xl font-bold m-2">Menu List</h1>
-            <button id="openMenuModal" class="rounded-lg bg-green-600 text-white font-semibold p-2 px-4">Add Dish</button>
+            <button id="openMenuModal" class="rounded-lg bg-green-600 text-white font-semibold p-2 px-4 hover:bg-green-700 hover:shadow-md duration-200">Add Dish</button>
         </div>
         <table class="table-fixed w-full border-collapse bg-white">
             <thead>
@@ -64,7 +64,7 @@ require '../../backend/menutablesint.php';
     <div class="flex-1 m-8 bg-gray-300 rounded-lg p-4 flex flex-col shadow-lg gap-4 overflow-y-auto px-10">
         <div class="flex justify-between items-center">
             <h1 class="text-5xl font-bold m-2">Tables</h1>
-            <button id="openTableModal" class="rounded-lg bg-green-600 text-white font-semibold p-2 px-4">Add Table</button>
+            <button id="openTableModal" class="rounded-lg bg-green-600 text-white font-semibold p-2 px-4 hover:bg-green-700 hover:shadow-md duration-200">Add Table</button>
         </div>
         <table class="table-fixed w-full border-collapse bg-white">
             <thead>
