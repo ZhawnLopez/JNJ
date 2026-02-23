@@ -33,6 +33,15 @@ if(isset($_POST['reset_dummy'])){
         $conn->query("TRUNCATE TABLE $table");
     }
     $conn->query("SET FOREIGN_KEY_CHECKS = 1");
+    //declare set ids again
+    $conn->query("ALTER TABLE Cashier AUTO_INCREMENT = 2001");
+    $conn->query("ALTER TABLE Waiter AUTO_INCREMENT = 3001");
+    $conn->query("ALTER TABLE Manager AUTO_INCREMENT = 5201");
+    $conn->query("ALTER TABLE Dish AUTO_INCREMENT = 301");
+    $conn->query("ALTER TABLE Tables AUTO_INCREMENT = 201");
+    $conn->query("ALTER TABLE Chef AUTO_INCREMENT = 4001");
+    $conn->query("ALTER TABLE Payment AUTO_INCREMENT = 497201");
+    $conn->query("ALTER TABLE Supply AUTO_INCREMENT = 8901");
     // INSERT MANAGER
     $password = password_hash("jnjinasal20", PASSWORD_DEFAULT);
     $conn->query("INSERT INTO Manager (Manager_name, Manager_email, Manager_contact_num, Password, Date_hired) VALUES ('manager', 'manager@jnj.com', '09123456789', '$password', CURDATE())");
