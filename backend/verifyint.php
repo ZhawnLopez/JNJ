@@ -69,7 +69,7 @@ if(isset($_POST['reset_dummy'])){
     // INSERT PAYMENT  
     $conn->query("INSERT INTO Payment (Amount_paid, Payment_method, Payment_status, Transaction_Num, Cashier_id, Order_id) VALUES(199.00,'Cash','Paid','TXN12345',$cashier_id,$order_id)");
     // INSERT SUPPLY
-    $conn->query("INSERT INTO Supply (Supply_Name, Supply_Quantity, Unit_of_measure, Price_per_unit, Date_procured, Expiry_date, Supplier_name, Manager_id) VALUES ('Charcoal',100,'kg',25.00,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 30 DAY),'Local Supplier',$manager_id)");
+    $conn->query("INSERT INTO Supply (Supply_Name, Supply_Quantity, Unit_of_measure, Price_per_unit, Date_procured, Expiry_date, Supplier_name, Manager_id) VALUES ('Chicken',100,'kg',25.00,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 30 DAY),'Local Supplier',$manager_id)");
     echo "<script>alert('Database Reset Successful!\\n\\nManager Login:\\nUsername: manager\\nPassword: jnjinasal20');</script>";
 }
 ?>
